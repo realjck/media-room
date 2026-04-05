@@ -2,6 +2,7 @@ import { loadSettings } from "./util/load-settings.js";
 import { ServerConnector } from './util/server-connector.js';
 import { JQueryForm } from "./util/jquery-form.js";
 import { View } from "./view/view.js";
+import { MediaPlayer } from './util/media-player.js';
 
 /**
  * MAIN APP
@@ -189,6 +190,9 @@ function makePresentation(){
   // next:
   initMedia();
 
+  // Request media sync from existing peers
+  ServerConnector.say('mediaSyncRequest', { user: MR.user });
+
   // show container:
   $(".container").show();
   $("#message").focus();
@@ -251,12 +255,22 @@ function initColorChange() {
 /**
  * INITIALIZE VIDEO SYSTEM
  */
-function initMedia(){
-  // End of media:
-  $("video").on("ended", () => {
-    // put poster back:
-    $("video")[0].load();
-    // fun message:
+
+/**
+ * Format seconds as M:SS for toast display.
+ * @param {number} seconds
+ * @returns {string}
+ */
+function _formatTimestamp(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function initMedia() {
+  // End of direct video — restore poster
+  $('video').off('ended.mr').on('ended.mr', () => {
+    $('video')[0].load();
     const fun_msg = [
       'The media is over, but the fun is just beginning.',
       'The media is finished, but the story is still being written.',
@@ -264,6 +278,100 @@ function initMedia(){
       'The media is finished, but the memories will last a lifetime.',
       'The media is finished, but the journey is only just beginning.'
     ];
-    View.toast(fun_msg[Math.floor(fun_msg.length*Math.random())]);
+    View.toast(fun_msg[Math.floor(fun_msg.length * Math.random())]);
+  });
+
+  // Wire MediaPlayer local events → broadcast to room
+  MediaPlayer.setCallbacks({
+    onPlay: (timestamp) => {
+      ServerConnector.say('mediaPlay', { timestamp, user: MR.user });
+    },
+    onPause: (timestamp) => {
+      ServerConnector.say('mediaPause', { timestamp, user: MR.user });
+    },
+    onSeek: (timestamp) => {
+      ServerConnector.say('mediaSeek', { timestamp, user: MR.user });
+    },
+    onError: () => {
+      View.toast('Could not load media');
+    }
+  });
+
+  // URL form → load and broadcast
+  $('#media-form').on('submit', (e) => {
+    e.preventDefault();
+    const url = $('#media-url').val().trim();
+    if (!url) return;
+    MediaPlayer.load(url);
+    ServerConnector.say('mediaLoad', { url, timestamp: 0, user: MR.user });
+    $('#media-url').val('');
+  });
+
+  // Remote: someone loaded a new media
+  ServerConnector.addListener('mediaLoad', (data) => {
+    if (data.user.name === MR.user.name) return;
+    MediaPlayer.load(data.url);
+    const load_msg = [
+      'loaded a new video',
+      'queued up something new',
+      'brought something to watch',
+      'dropped a new video in the room',
+      'set the stage with a new video'
+    ];
+    View.toast(`${data.user.name} ${load_msg[Math.floor(load_msg.length * Math.random())]}`, MR.userColors[data.user.color]);
+  });
+
+  // Remote: someone played
+  ServerConnector.addListener('mediaPlay', (data) => {
+    if (data.user.name === MR.user.name) return;
+    MediaPlayer.play(data.timestamp);
+    const play_msg = [
+      'hit play',
+      'started the show',
+      'rolled the tape',
+      'got the party started',
+      'set things in motion'
+    ];
+    View.toast(`${data.user.name} ${play_msg[Math.floor(play_msg.length * Math.random())]}`, MR.userColors[data.user.color]);
+  });
+
+  // Remote: someone paused
+  ServerConnector.addListener('mediaPause', (data) => {
+    if (data.user.name === MR.user.name) return;
+    MediaPlayer.pause(data.timestamp);
+    const pause_msg = [
+      'hit pause',
+      'froze the frame',
+      'put things on hold',
+      'called a timeout',
+      'stopped the show for a moment'
+    ];
+    View.toast(`${data.user.name} ${pause_msg[Math.floor(pause_msg.length * Math.random())]}`, MR.userColors[data.user.color]);
+  });
+
+  // Remote: someone seeked
+  ServerConnector.addListener('mediaSeek', (data) => {
+    if (data.user.name === MR.user.name) return;
+    MediaPlayer.seek(data.timestamp);
+    View.toast(`${data.user.name} jumped to ${_formatTimestamp(data.timestamp)}`, MR.userColors[data.user.color]);
+  });
+
+  // Sync: respond to joiners requesting current state
+  ServerConnector.addListener('mediaSyncRequest', (data) => {
+    if (data.user && data.user.name === MR.user.name) return;
+    const state = MediaPlayer.getState();
+    if (state.url) {
+      ServerConnector.say('mediaSyncResponse', state);
+    }
+  });
+
+  // Sync: receive state from existing peers on join (take first response only)
+  let _syncDone = false;
+  const _syncTimeout = setTimeout(() => { _syncDone = true; }, 2000);
+  ServerConnector.addListener('mediaSyncResponse', (data) => {
+    if (_syncDone) return;
+    _syncDone = true;
+    clearTimeout(_syncTimeout);
+    MediaPlayer.loadAndSync(data.url, data.timestamp, data.isPlaying);
   });
 }
