@@ -8,7 +8,7 @@ Setup the URL of your server in the `settings' file in /config:
 URL=wss://your-server.com:8443
 ```
 
-Mount the following files and folders as a web volume:
+Deploy this folder to your server:
 
 ```
 index.html

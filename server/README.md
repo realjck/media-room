@@ -14,8 +14,8 @@ The SSL keys must be generated in the usual paths. Launch your container like th
 ```bash
 # Run the container
 docker run -d --restart always -p 2002:8080 \
-    -v /etc/letsencrypt/live/mediaroom.pxly.fr/fullchain.pem:/app/cert.pem \
-    -v /etc/letsencrypt/live/mediaroom.pxly.fr/privkey.pem:/app/key.pem \
+    -v /etc/letsencrypt/live/your-server.com/fullchain.pem:/app/cert.pem \
+    -v /etc/letsencrypt/live/your-server.com/privkey.pem:/app/key.pem \
     media-room
 ```
 
@@ -26,9 +26,9 @@ in `/etc/nginx/sites-available/default`
 ```nginx
 server {
   listen 8443 ssl;
-  server_name mediaroom.pxly.fr;
-  ssl_certificate /etc/letsencrypt/live/mediaroom.pxly.fr/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/mediaroom.pxly.fr/privkey.pem;
+  server_name your-server.com;
+  ssl_certificate /etc/letsencrypt/live/your-server.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/your-server.com/privkey.pem;
   location / {
     proxy_pass https://localhost:2002;
     proxy_http_version 1.1;
