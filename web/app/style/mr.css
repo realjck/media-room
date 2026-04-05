@@ -19,6 +19,10 @@
     max-height: inherit !important;
 }
 
+#modal-roomname-dialog {
+    overflow: visible;
+}
+
 #roomname-card {
     min-width: 360px;
     border-top-color: #1a1a1a;
@@ -38,10 +42,26 @@
 
 /* Landing header */
 .landing-header {
-    text-align: center;
-    padding: 8px 0 20px;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    padding: 0 0 20px;
     border-bottom: 1px solid #222;
     margin-bottom: 8px;
+    overflow: visible;
+}
+
+.landing-mascot {
+    width: 100px;
+    height: auto;
+    margin-top: -85px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
+}
+
+.landing-titles {
+    flex: 1;
+    padding-bottom: 4px;
 }
 
 .landing-title {
