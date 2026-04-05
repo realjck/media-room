@@ -7,6 +7,11 @@ $(document).ready(() => {
     $('.divider').mousedown((e) => {
         isResizing = true;
         lastDownX = e.clientX;
+        $('<div id="iframe-overlay">').css({
+            position: 'fixed', top: 0, left: 0,
+            width: '100%', height: '100%',
+            zIndex: 9999
+        }).appendTo('body');
     });
     $(document).mousemove(function(e) {
         if (isResizing) {
@@ -19,6 +24,7 @@ $(document).ready(() => {
         }
     }).mouseup(() => {
         isResizing = false;
+        $('#iframe-overlay').remove();
     });
 
     // TOGGLE HIGH PANEL
