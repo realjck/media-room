@@ -60,7 +60,7 @@ function _applySyncPending() {
 }
 
 function _loadDirect(url, onReady) {
-  $('#yt-player').hide();
+  $('#yt-player-wrap').hide();
   $('video').show();
   $('video source').attr('src', url);
   $('video')[0].load();
@@ -109,7 +109,7 @@ function _onYTStateChange(event) {
 
 function _loadYouTube(url, onReady) {
   $('video').hide();
-  $('#yt-player').show().empty();
+  $('#yt-player-wrap').show();
   const videoId = _extractYouTubeId(url);
   if (!videoId) {
     if (_callbacks.onError) _callbacks.onError();
@@ -117,10 +117,10 @@ function _loadYouTube(url, onReady) {
   }
   function _createPlayer() {
     if (_ytPlayer) { _ytPlayer.destroy(); _ytPlayer = null; }
+    // Recreate target div (YT API replaces it with an iframe)
+    $('#yt-player-wrap').html('<div id="yt-player"></div>');
     _ytPlayer = new YT.Player('yt-player', {
       videoId: videoId,
-      width: '100%',
-      height: '100%',
       playerVars: { autoplay: 0, controls: 1 },
       events: {
         onReady: () => { if (onReady) onReady(); },

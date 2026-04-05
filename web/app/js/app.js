@@ -198,6 +198,7 @@ function makePresentation(){
 
   // show container:
   $(".container").show();
+  $('#github-ribbon').hide();
   $("#message").focus();
 }
 

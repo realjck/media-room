@@ -18,6 +18,85 @@
     border-radius: 20px;
     max-height: inherit !important;
 }
+
+#roomname-card {
+    min-width: 360px;
+    border-top-color: #1a1a1a;
+}
+
+#roomname-card::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: -26px;
+    left: -1px;
+    right: -1px;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #444, transparent);
+    border-radius: 2px 2px 0 0;
+}
+
+/* Landing header */
+.landing-header {
+    text-align: center;
+    padding: 8px 0 20px;
+    border-bottom: 1px solid #222;
+    margin-bottom: 8px;
+}
+
+.landing-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8em;
+    letter-spacing: 0.12em;
+    color: #ffffff;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.landing-subtitle {
+    font-size: 0.68em;
+    color: #555;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+/* GitHub corner ribbon */
+.github-ribbon-wrap {
+    position: fixed;
+    top: 0;
+    right: 0;
+    overflow: hidden;
+    width: 160px;
+    height: 160px;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.github-ribbon-link {
+    position: absolute;
+    top: 40px;
+    right: -38px;
+    transform: rotate(45deg);
+    width: 180px;
+    background: #1c1c1c;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    color: #888 !important;
+    text-align: center;
+    padding: 7px 0;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    pointer-events: all;
+    transition: background 0.2s, color 0.2s;
+    margin-left: 0;
+}
+
+.github-ribbon-link:hover {
+    background: #2a2a2a;
+    color: #fff !important;
+}
 .dialog-title {
     border: 0 !important;
     width: 85%;
@@ -53,7 +132,9 @@ input {
 
 body {
     height: 100%;
-    background-color: black;
+    background-color: #080808;
+    background-image: radial-gradient(circle, #1e1e1e 1px, transparent 1px);
+    background-size: 28px 28px;
     overflow: hidden;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -124,12 +205,23 @@ a:hover {
 }
 
 /* Video: */
-video, #yt-player {
+video {
     width: 100%;
     height: 100%;
     object-fit: contain;
     flex: 1;
     min-height: 0;
+}
+
+#yt-player-wrap {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 /* Buttons Color selection: */
