@@ -258,3 +258,24 @@ li.btColor.active {
     margin-left: auto;
     display: block;
 }
+
+/* Media form */
+.media-form {
+    display: flex;
+    gap: 5px;
+    padding: 5px 5px 2px 5px;
+    margin: 0;
+}
+.media-form input {
+    flex: 1;
+    width: auto;
+    font-size: 0.8em;
+    padding: 4px 8px;
+    margin: 0;
+}
+.media-form button {
+    padding: 4px 8px;
+    font-size: 0.8em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}

@@ -25,6 +25,10 @@
 			</div>
 			<div id="hiding-zone">
 				<h2 class="small">Room: <span id="room-name"></span></h2>
+				<form id="media-form" class="media-form">
+					<input type="text" id="media-url" aria-label="Video URL or YouTube link" placeholder="Video URL or YouTube link" autocomplete="off"/>
+					<button type="submit">&#9654;</button>
+				</form>
 				<h2 class="small">Choose your avatar's color:</h2>
 				<ul class="btColorList">
 					<li class="btColor"></li>
@@ -67,6 +71,7 @@
 			<source src="" type="video/mp4">
 			<track default kind="descriptions" src=""/>
 		</video>
+		<div id="yt-player" style="display:none; width:100%; height:100%;"></div>
 	</div>
 </div>
 <!-- That's a toast to tell what's happening -->
