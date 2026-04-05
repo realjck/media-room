@@ -1,6 +1,6 @@
 {
 	"name": "media-room",
-	"version": "0.6.0",
+	"version": "0.7.0",
 	"dependencies": {
 	"jquery": "^3.7.1"
 	},
