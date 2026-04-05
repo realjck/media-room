@@ -31,6 +31,9 @@ const MR = {
   users : []
 };
 
+let _syncDone = false;
+let _syncTimeout = null;
+
 /**
  * LOAD SETTINGS
  */
@@ -268,19 +271,6 @@ function _formatTimestamp(seconds) {
 }
 
 function initMedia() {
-  // End of direct video — restore poster
-  $('video').off('ended.mr').on('ended.mr', () => {
-    $('video')[0].load();
-    const fun_msg = [
-      'The media is over, but the fun is just beginning.',
-      'The media is finished, but the story is still being written.',
-      'The media is finished, but the imagination is still running wild.',
-      'The media is finished, but the memories will last a lifetime.',
-      'The media is finished, but the journey is only just beginning.'
-    ];
-    View.toast(fun_msg[Math.floor(fun_msg.length * Math.random())]);
-  });
-
   // Wire MediaPlayer local events → broadcast to room
   MediaPlayer.setCallbacks({
     onPlay: (timestamp) => {
@@ -294,6 +284,19 @@ function initMedia() {
     },
     onError: () => {
       View.toast('Could not load media');
+    },
+    onEnded: () => {
+      const fun_msg = [
+        'The media is over, but the fun is just beginning.',
+        'The media is finished, but the story is still being written.',
+        'The media is finished, but the imagination is still running wild.',
+        'The media is finished, but the memories will last a lifetime.',
+        'The media is finished, but the journey is only just beginning.'
+      ];
+      View.toast(fun_msg[Math.floor(fun_msg.length * Math.random())]);
+    },
+    onYouTubeAutoplaySynced: () => {
+      View.toast('Video is playing — press ▶ to join in');
     }
   });
 
@@ -366,8 +369,9 @@ function initMedia() {
   });
 
   // Sync: receive state from existing peers on join (take first response only)
-  let _syncDone = false;
-  const _syncTimeout = setTimeout(() => { _syncDone = true; }, 2000);
+  _syncDone = false;
+  clearTimeout(_syncTimeout);
+  _syncTimeout = setTimeout(() => { _syncDone = true; }, 2000);
   ServerConnector.addListener('mediaSyncResponse', (data) => {
     if (_syncDone) return;
     _syncDone = true;

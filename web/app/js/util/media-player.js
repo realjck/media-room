@@ -14,7 +14,9 @@ const _callbacks = {
   onPlay: null,
   onPause: null,
   onSeek: null,
-  onError: null
+  onError: null,
+  onEnded: null,
+  onYouTubeAutoplaySynced: null
 };
 
 function _detectType(url) {
@@ -29,20 +31,28 @@ function _extractYouTubeId(url) {
   return match ? match[1] : null;
 }
 
-// Sets _remoteAction for 500ms to suppress local event broadcasting
-// while applying a remote-triggered change to the player.
+// Sets _remoteAction to suppress local event broadcasting while applying a remote action.
 function _withRemoteAction(fn) {
   _remoteAction = true;
   fn();
-  // 2s window: YouTube onStateChange fires over IPC with unpredictable latency
-  setTimeout(() => { _remoteAction = false; }, 2000);
+  if (_detectType(_url || '') === 'youtube') {
+    // YouTube onStateChange fires over IPC with unpredictable latency
+    setTimeout(() => { _remoteAction = false; }, 2000);
+  } else {
+    // Direct video events fire synchronously — clear in next microtask
+    Promise.resolve().then(() => { _remoteAction = false; });
+  }
 }
 
 function _applySyncPending() {
   if (!_syncPending) return;
   const { timestamp, isPlaying } = _syncPending;
   _syncPending = null;
-  if (isPlaying) {
+  if (isPlaying && _detectType(_url || '') === 'youtube') {
+    // YouTube autoplay is blocked by browsers without a user gesture — seek only
+    MediaPlayer.seek(timestamp);
+    if (_callbacks.onYouTubeAutoplaySynced) _callbacks.onYouTubeAutoplaySynced();
+  } else if (isPlaying) {
     MediaPlayer.play(timestamp);
   } else {
     MediaPlayer.seek(timestamp);
@@ -54,7 +64,7 @@ function _loadDirect(url, onReady) {
   $('video').show();
   $('video source').attr('src', url);
   $('video')[0].load();
-  $('video').off('play.mr pause.mr seeked.mr error.mr canplay.sync');
+  $('video').off('play.mr pause.mr seeked.mr error.mr ended.mr canplay.sync');
   if (onReady) {
     $('video').one('canplay.sync', onReady);
   }
@@ -75,6 +85,10 @@ function _loadDirect(url, onReady) {
   $('video').on('error.mr', () => {
     if (_callbacks.onError) _callbacks.onError();
   });
+  $('video').on('ended.mr', () => {
+    $('video')[0].load(); // restore poster
+    if (_callbacks.onEnded) _callbacks.onEnded();
+  });
 }
 
 function _onYTStateChange(event) {
@@ -85,6 +99,9 @@ function _onYTStateChange(event) {
   } else if (event.data === YT.PlayerState.PAUSED) {
     _isPlaying = false;
     if (_callbacks.onPause) _callbacks.onPause(_ytPlayer.getCurrentTime());
+  } else if (event.data === YT.PlayerState.ENDED) {
+    _isPlaying = false;
+    if (_callbacks.onEnded) _callbacks.onEnded();
   }
 }
 // Note: YouTube IFrame API has no 'seeked' event. Manual scrubbing by remote users
@@ -170,6 +187,7 @@ MediaPlayer.loadAndSync = (url, timestamp, isPlaying) => {
  * Tolerance: skips seek if diff < 2s to avoid jarring jumps.
  */
 MediaPlayer.play = (timestamp) => {
+  if (!_url) return;
   _withRemoteAction(() => {
     _isPlaying = true;
     if (_detectType(_url || '') === 'youtube' && _ytPlayer) {
@@ -189,6 +207,7 @@ MediaPlayer.play = (timestamp) => {
  * Apply a remote pause at a given timestamp.
  */
 MediaPlayer.pause = (timestamp) => {
+  if (!_url) return;
   _withRemoteAction(() => {
     _isPlaying = false;
     if (_detectType(_url || '') === 'youtube' && _ytPlayer) {
@@ -206,6 +225,7 @@ MediaPlayer.pause = (timestamp) => {
  * Apply a remote seek to a given timestamp.
  */
 MediaPlayer.seek = (timestamp) => {
+  if (!_url) return;
   _withRemoteAction(() => {
     if (_detectType(_url || '') === 'youtube' && _ytPlayer) {
       _ytPlayer.seekTo(timestamp, true);
