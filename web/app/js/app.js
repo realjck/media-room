@@ -310,7 +310,7 @@ function initMedia() {
   }
   $('#media-form button').on('click', _submitMediaUrl);
   $('#media-url').on('keypress', (e) => {
-    if (e.which === 13) _submitMediaUrl();
+    if (e.which === 13) { e.preventDefault(); _submitMediaUrl(); }
   });
 
   // Remote: someone loaded a new media
