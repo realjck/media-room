@@ -301,13 +301,16 @@ function initMedia() {
   });
 
   // URL form → load and broadcast
-  $('#media-form').on('submit', (e) => {
-    e.preventDefault();
+  function _submitMediaUrl() {
     const url = $('#media-url').val().trim();
     if (!url) return;
     MediaPlayer.load(url);
     ServerConnector.say('mediaLoad', { url, timestamp: 0, user: MR.user });
     $('#media-url').val('');
+  }
+  $('#media-form button').on('click', _submitMediaUrl);
+  $('#media-url').on('keypress', (e) => {
+    if (e.which === 13) _submitMediaUrl();
   });
 
   // Remote: someone loaded a new media
