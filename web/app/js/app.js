@@ -57,7 +57,14 @@ loadSettings('./config/settings',() => {
     MR.currentChannel='dev';
     ServerConnector.login(MR.user.name, MR.currentChannel, makePresentation);
   } else {
-    askRoom();
+    const hashRoom = location.hash.slice(1);
+    if (hashRoom && /^\w+$/.test(hashRoom)) {
+      MR.currentChannel = hashRoom.toLowerCase();
+      location.replace(location.pathname + '#' + MR.currentChannel);
+      askUserName();
+    } else {
+      askRoom();
+    }
   }
 });
 
@@ -69,6 +76,7 @@ function askRoom() {
   $("#modal-roomname-dialog").show();
   JQueryForm.init('roomname-card', [['roomname', /^\w+$/]], (data) => {
     MR.currentChannel = data.roomname.toLowerCase();
+    location.hash = MR.currentChannel;
     $("#modal-roomname-dialog").hide();
     askUserName();
   });
@@ -99,7 +107,9 @@ function askUserName() {
         .eq(MR.user.color).addClass('active');
   }
   // bt close:
-  $("#modal-username-dialog .modal-close").on("click", () => {
+  $("#modal-username-dialog .modal-close").off("click").on("click", () => {
+    history.replaceState(null, '', location.pathname);
+    MR.currentChannel = '';
     $("#modal-username-dialog").hide();
     // go back to room selection:
     askRoom();
