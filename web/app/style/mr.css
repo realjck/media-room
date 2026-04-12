@@ -147,8 +147,24 @@
     border: 1px solid #2c2c2c;
     border-radius: 10px;
     padding: 10px 28px 13px;
-    pointer-events: none;
+    cursor: pointer;
     z-index: 1;
+    transition: border-color 0.2s;
+}
+
+#room-welcome:hover {
+    border-color: #555;
+}
+
+#room-welcome:hover .copy-icon {
+    opacity: 1;
+}
+
+.room-welcome-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
 }
 
 #room-welcome::before {
@@ -182,7 +198,6 @@
 }
 
 #room-welcome-name {
-    display: block;
     font-family: Menlo, Consolas, monospace;
     font-weight: 700;
     font-size: 1.4em;
@@ -190,6 +205,14 @@
     color: #fff;
     line-height: 1;
     text-shadow: 0 0 24px rgba(255, 255, 255, 0.15);
+}
+
+.copy-icon {
+    width: 13px;
+    height: 13px;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
 }
 
 /* Username card layout */
@@ -229,6 +252,10 @@
 }
 
 #username::placeholder {
+    color: #3a3a3a;
+}
+
+#message::placeholder {
     color: #3a3a3a;
 }
 input {
@@ -387,16 +414,46 @@ li.btColor.active {
 }
 
 /* Chat: */
-.left-panel textarea {
-    width: 100%;
+#talk-area {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 6px 10px;
+}
+
+#talk-area textarea {
+    flex: 1;
+    min-width: 0;
     max-height: 5em;
-    margin-bottom: 1em;
+    margin: 0;
     resize: none;
-    border: 0;
-    background-color: #222222;
-    padding: 1em;
+    background: var(--input-back-color);
+    border: 0.0625rem solid #333;
+    border-radius: var(--universal-border-radius);
+    padding: 0.6em 0.8em;
     overflow-x: hidden;
-    line-height: 1.2em;
+    line-height: 1.4em;
+    box-sizing: border-box;
+}
+
+#talk-area button {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--universal-border-radius);
+    background: #242424;
+    border: 0.0625rem solid #333;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+#talk-area button:hover {
+    background: #2e2e2e;
+    border-color: #444;
 }
 .box-container {
     height: calc(100vh - 8em);
@@ -452,6 +509,40 @@ li.btColor.active {
 }
 #room-name {
     color: #e0e0e0;
+}
+
+#copy-room-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #242424;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #999;
+    font-size: x-small;
+    letter-spacing: 0.03em;
+    padding: 5px 10px;
+    cursor: pointer;
+    width: calc(100% - 10px);
+    margin: 2px 5px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+#copy-room-link:hover {
+    background: #2e2e2e;
+    border-color: #444;
+    color: #ccc;
+}
+
+#copy-room-link:hover .copy-icon {
+    opacity: 0.8;
+}
+
+#copy-room-link .copy-icon {
+    opacity: 0.5;
 }
 
 .users-panel {

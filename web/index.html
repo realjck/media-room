@@ -25,7 +25,10 @@
 				</svg>
 			</div>
 			<div id="hiding-zone">
-				<h2 class="small">Room: <span id="room-name"></span></h2>
+				<button id="copy-room-link" title="Copy room link">
+					<img class="copy-icon" src="./app/images/copy-link.svg" alt="copy link"/>
+					Link to <span id="room-name"></span>
+				</button>
 				<div id="media-form" class="media-form">
 					<input type="text" id="media-url" aria-label="Video URL or YouTube link" placeholder="Video URL or YouTube link" autocomplete="off"/>
 					<button>&#9654;</button>
@@ -49,19 +52,11 @@
 			<!-- speech bubbles -->
 		</div>
 		<!-- Left Panel - Send messages area -->
-		<div id="talk-area" class="row">
-			<div class="col-sm-8">
-				<label><textarea type="" id="message" placeholder="Send a message to the room"></textarea></label>
-			</div>
-			<div class="col-sm-4">
-				<button type="submit">
-					<svg	width="25px" height="25px" fill="#888" viewBox="0 0 1e3 1e3"
-							xmlns="http://www.w3.org/2000/svg">
-						<ellipse cx="547.5" cy="500.5" rx="407.5" ry="267.5"/>
-						<path d="m134.5 823.5s130-86 173-172l183 66s-65 84-356 106z"/>
-					</svg>
-				</button>
-			</div>
+		<div id="talk-area">
+			<textarea id="message" placeholder="Send a message to the room"></textarea>
+			<button type="submit" aria-label="Send message">
+				<img src="./app/images/send.svg" alt="send" width="15" height="15"/>
+			</button>
 		</div>
 	</div>
 	<!-- Divider: -->
@@ -104,9 +99,12 @@
 <input id="username-modal" type="checkbox" class="modal">
 <div id="modal-username-dialog" role="dialog" aria-labelledby="dialog-title">
 	<div id="username-card" class="card">
-		<div id="room-welcome">
+		<div id="room-welcome" title="Copy room link">
 			<span class="room-welcome-label">Welcome to the room</span>
-			<span id="room-welcome-name"></span>
+			<span class="room-welcome-name-row">
+				<span id="room-welcome-name"></span>
+				<img class="copy-icon" src="./app/images/copy-link.svg" alt="copy link"/>
+			</span>
 		</div>
 		<div class="modal-close"></div>
 		<label class="username-question" for="username">What's your name?</label>

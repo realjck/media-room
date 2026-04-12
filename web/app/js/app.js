@@ -69,6 +69,17 @@ loadSettings('./config/settings',() => {
 });
 
 /**
+ * Copy current room URL (with hash) to clipboard
+ */
+function copyRoomLink() {
+  navigator.clipboard.writeText(location.href).then(() => {
+    View.toast('Room link copied!');
+  }).catch(() => {
+    View.toast('Could not copy link');
+  });
+}
+
+/**
  * ASK ROOM TO CONNECT
  */
 function askRoom() {
@@ -90,6 +101,7 @@ function askUserName() {
   // USER NAME
   // ---------
   $("#room-welcome-name").text(MR.currentChannel);
+  $("#room-welcome").off("click").on("click", copyRoomLink);
   $("#modal-username-dialog").show();
   // color buttons:
   MR.user.color = Math.floor(Math.random()*MR.userColors.length);
@@ -198,8 +210,9 @@ function makePresentation(){
   // init Color change
   initColorChange();
 
-  // show room name
+  // show room name + copy link button
   $("#room-name").html(MR.currentChannel);
+  $("#copy-room-link").on("click", copyRoomLink);
 
   // next:
   initMedia();
