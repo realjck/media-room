@@ -78,7 +78,7 @@ YouTube note: the IFrame API has no `seeked` event — only play/pause are synch
 | `app/js/util/server-connector.js` | WebSocket client with pub/sub (`addListener`, `say`) |
 | `app/js/util/load-settings.js` | Loads `config/settings` (key=value) into `window.*` globals |
 | `app/js/util/jquery-form.js` | Form validation with regex rules |
-| `app/js/util/media-player.js` | Unified player: detects YouTube vs direct URL, wraps YT IFrame API |
+| `app/js/util/media-player.js` | Unified player: detects YouTube vs direct URL, wraps YT IFrame API. `_ytReady` flag gates all YT player method calls until `onReady` fires |
 | `app/js/view/view.js` | DOM manipulation: toasts, speech bubbles, user badges |
 | `app/js/iife/ui-feats.js` | UI interactions: panel resizer, hamburger toggle, YT aspect ratio |
 
@@ -134,14 +134,18 @@ Single-file Python asyncio WebSocket server:
 - `clients` — all connected sockets
 - `channels` — dict mapping channel name → set of sockets
 - `names` — dict mapping socket → username
+- `channel_locks` — per-channel `asyncio.Lock` to prevent race conditions on join
 
-On connect: receives `user:channel`, validates no duplicate username in channel, then broadcasts all subsequent messages to channel members. On disconnect: broadcasts `!username` to remaining channel members and cleans up empty channels.
+On connect: validates login format (`split(':', 1)`), validates username and channel against `IDENT_RE = r'^\w{1,32}$'`, acquires channel lock before uniqueness check, then broadcasts all subsequent messages to channel members. On disconnect: broadcasts `!username` to remaining channel members and cleans up empty channels.
+
+`websockets.serve` is configured with `max_size=65536` to prevent DoS via oversized messages.
 
 ### Configuration (`web/config/settings`)
 
-Plain text `KEY=VALUE` file loaded at runtime. Key fields:
-- `VERSION` — displayed in UI
+Plain text `KEY=VALUE` file loaded at runtime. Only whitelisted keys (`DEV`, `URL`) are written to `window.*` — all others are ignored. Key fields:
 - `DEV` — `true` enables auto-login bypass
 - `URL` — WebSocket server URL (e.g. `wss://host:port`)
 
 This file is served as a static asset and must be accessible at `./config/settings` relative to `index.html`.
+
+**Version** is hardcoded in `web/app/js/app.js` as `const VERSION = '...'` at the top of the file — not in `settings`.
