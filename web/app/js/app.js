@@ -262,7 +262,7 @@ function initColorChange() {
   });
 
   // Close picker on outside click
-  $(document).on('click', (e) => {
+  $(document).off('click.colorpicker').on('click.colorpicker', (e) => {
     if (!$(e.target).closest('#self-badge-wrap').length) {
       $('#self-color-picker').hide();
     }
