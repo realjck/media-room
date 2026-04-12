@@ -17,10 +17,10 @@ View.toast = (message, color = undefined) => {
     } else {
         $(".toast").css("background-color", "var(--toast-back-color)");
     }
-    $(".toast").html(message);
+    $(".toast").text(message);
     $(".toast").show();
     clearTimeout(_toastTimer);
-    _toastTimer = setInterval(() => {
+    _toastTimer = setTimeout(() => {
         $(".toast").hide();
     }, 4200);
 }
@@ -33,24 +33,17 @@ View.toast = (message, color = undefined) => {
  * @param {boolean} right (optional)
  */
 View.speechBubble = (name, color, message, right) => {
-    let html = '<div class="speech-bubble';
-    if (right) {
-        html += ' right">';
-    } else {
-        html += '">';
-    }
-    html += '<div>';
-    html += '<div class="speech-bubble-user" style="background-color:' + color + '">';
-    html += name;
-    html += '</div>';
-    html += '<div class="speech-bubble-date">' +
-        `${new Date().getHours()}:${(new Date().getMinutes() < 10 ? '0' : '') + new Date().getMinutes()}` +
-        '</div>';
-    html += '</div>';
-    html += message;
-    html += '</div>';
+    const $bubble = $('<div class="speech-bubble">');
+    if (right) $bubble.addClass('right');
 
-    $('.box-container').prepend(html).children().first().hide().show(350);
+    const $time = `${new Date().getHours()}:${(new Date().getMinutes() < 10 ? '0' : '') + new Date().getMinutes()}`;
+    const $header = $('<div>').append(
+        $('<div class="speech-bubble-user">').css('background-color', color).text(name),
+        $('<div class="speech-bubble-date">').text($time)
+    );
+    $bubble.append($header, $('<div>').text(message));
+
+    $('.box-container').prepend($bubble).children().first().hide().show(350);
 }
 
 View.updateSpeechBubbleColor = (username, color) => {
@@ -62,21 +55,21 @@ View.updateSpeechBubbleColor = (username, color) => {
 }
 
 View.addUser = (username, color) => {
-    const html = '<div class="speech-bubble-user" style="background-color:' + color + '">' + username + '</div>';
-    $("#users-container").append(html);
+    $('<div class="speech-bubble-user">').css('background-color', color).text(username)
+        .appendTo('#users-container');
 }
 
 View.addSelfUser = (username, color, colors) => {
     const dots = colors.map(c =>
         `<li class="btColor" style="background-color:${c}"></li>`
     ).join('');
-    const html = `<div id="self-badge-wrap">
-        <div id="self-badge" class="speech-bubble-user" style="background-color:${color}">${username}<svg class="self-badge-arrow" width="7" height="5" viewBox="0 0 7 5" fill="rgba(255,255,255,0.5)"><path d="M0 0h7L3.5 5z"/></svg></div>
-        <div id="self-color-picker">
-            <ul class="btColorList">${dots}</ul>
-        </div>
-    </div>`;
-    $("#users-container").prepend(html);
+    const $badge = $('<div id="self-badge" class="speech-bubble-user">').css('background-color', color).text(username);
+    $badge.append('<svg class="self-badge-arrow" width="7" height="5" viewBox="0 0 7 5" fill="rgba(255,255,255,0.5)"><path d="M0 0h7L3.5 5z"/></svg>');
+    const $wrap = $('<div id="self-badge-wrap">').append(
+        $badge,
+        $('<div id="self-color-picker"><ul class="btColorList">' + dots + '</ul></div>')
+    );
+    $("#users-container").prepend($wrap);
 }
 
 View.removeUser = (username) => {

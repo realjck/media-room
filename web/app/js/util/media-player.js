@@ -7,6 +7,7 @@
 let _url = null;
 let _isPlaying = false;
 let _ytPlayer = null;
+let _ytReady = false;
 let _remoteAction = false;
 let _syncPending = null;
 
@@ -34,13 +35,16 @@ function _extractYouTubeId(url) {
 // Sets _remoteAction to suppress local event broadcasting while applying a remote action.
 function _withRemoteAction(fn) {
   _remoteAction = true;
-  fn();
-  if (_detectType(_url || '') === 'youtube') {
-    // YouTube onStateChange fires over IPC with unpredictable latency
-    setTimeout(() => { _remoteAction = false; }, 2000);
-  } else {
-    // Direct video events fire asynchronously (macrotask) — use a short timeout
-    setTimeout(() => { _remoteAction = false; }, 300);
+  try {
+    fn();
+  } finally {
+    if (_detectType(_url || '') === 'youtube') {
+      // YouTube onStateChange fires over IPC with unpredictable latency
+      setTimeout(() => { _remoteAction = false; }, 2000);
+    } else {
+      // Direct video events fire asynchronously (macrotask) — use a short timeout
+      setTimeout(() => { _remoteAction = false; }, 300);
+    }
   }
 }
 
@@ -64,10 +68,15 @@ function _loadDirect(url, onReady) {
   $('#yt-player-wrap').hide();
   $('video').show();
   $('video source').attr('src', url);
-  $('video')[0].load();
+  const v = $('video')[0];
+  if (v) v.load();
   $('video').off('play.mr pause.mr seeked.mr error.mr ended.mr canplay.sync');
   if (onReady) {
-    $('video').one('canplay.sync', onReady);
+    if (v && v.readyState >= 3) {
+      onReady();
+    } else {
+      $('video').one('canplay.sync', onReady);
+    }
   }
   $('video').on('play.mr', () => {
     if (_remoteAction) return;
@@ -119,6 +128,7 @@ function _loadYouTube(url, onReady) {
     return;
   }
   function _createPlayer() {
+    _ytReady = false;
     if (_ytPlayer) { _ytPlayer.destroy(); _ytPlayer = null; }
     // Recreate target div (YT API replaces it with an iframe)
     $('#yt-player-wrap').html('<div id="yt-player"></div>');
@@ -126,7 +136,7 @@ function _loadYouTube(url, onReady) {
       videoId: videoId,
       playerVars: { autoplay: 0, controls: 1 },
       events: {
-        onReady: () => { if (onReady) onReady(); },
+        onReady: () => { _ytReady = true; if (onReady) onReady(); },
         onStateChange: _onYTStateChange,
         onError: () => { if (_callbacks.onError) _callbacks.onError(); }
       }
@@ -193,11 +203,12 @@ MediaPlayer.play = (timestamp) => {
   if (!_url) return;
   _withRemoteAction(() => {
     _isPlaying = true;
-    if (_detectType(_url || '') === 'youtube' && _ytPlayer) {
+    if (_detectType(_url || '') === 'youtube' && _ytPlayer && _ytReady) {
       if (timestamp !== undefined) _ytPlayer.seekTo(timestamp, true);
       _ytPlayer.playVideo();
     } else {
       const v = $('video')[0];
+      if (!v) return;
       if (timestamp !== undefined && Math.abs(v.currentTime - timestamp) > 2) {
         v.currentTime = timestamp;
       }
@@ -213,11 +224,12 @@ MediaPlayer.pause = (timestamp) => {
   if (!_url) return;
   _withRemoteAction(() => {
     _isPlaying = false;
-    if (_detectType(_url || '') === 'youtube' && _ytPlayer) {
+    if (_detectType(_url || '') === 'youtube' && _ytPlayer && _ytReady) {
       _ytPlayer.pauseVideo();
       if (timestamp !== undefined) _ytPlayer.seekTo(timestamp, true);
     } else {
       const v = $('video')[0];
+      if (!v) return;
       v.pause();
       if (timestamp !== undefined) v.currentTime = timestamp;
     }
@@ -230,20 +242,22 @@ MediaPlayer.pause = (timestamp) => {
 MediaPlayer.seek = (timestamp) => {
   if (!_url) return;
   _withRemoteAction(() => {
-    if (_detectType(_url || '') === 'youtube' && _ytPlayer) {
+    if (_detectType(_url || '') === 'youtube' && _ytPlayer && _ytReady) {
       _ytPlayer.seekTo(timestamp, true);
     } else {
-      $('video')[0].currentTime = timestamp;
+      const v = $('video')[0];
+      if (v) v.currentTime = timestamp;
     }
   });
 };
 
 /** Returns current playback position in seconds. */
 MediaPlayer.getTime = () => {
-  if (_detectType(_url || '') === 'youtube' && _ytPlayer) {
+  if (_detectType(_url || '') === 'youtube' && _ytPlayer && _ytReady) {
     return _ytPlayer.getCurrentTime() || 0;
   }
-  return $('video')[0].currentTime || 0;
+  const v = $('video')[0];
+  return v ? v.currentTime || 0 : 0;
 };
 
 /** Returns full player state for sync response. */
