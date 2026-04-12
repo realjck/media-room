@@ -15,14 +15,17 @@
 	<!-- Left Panel: -->
 	<div class="left-panel">
 		<div class="high-panel">
-			<div class="inline">
-				<h1 class="small">MediaRoom-v</h1>
-			</div>
-			<div id="toggle-high-panel">
-				<svg	class="hb" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" stroke="#eee" stroke-width=".6"
-						fill="rgba(0,0,0,0)" stroke-linecap="round">
-					<path d="M2,3L5,3L8,3M2,5L8,5M2,7L5,7L8,7"></path>
-				</svg>
+			<div class="panel-header">
+				<div class="inline">
+					<img class="panel-mascot" src="./app/images/mascot.svg" alt="mascot"/>
+					<span class="panel-title">MEDIA ROOM</span>
+				</div>
+				<div id="toggle-high-panel">
+					<svg class="hb" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" stroke="#eee" stroke-width=".6"
+							fill="rgba(0,0,0,0)" stroke-linecap="round">
+						<path d="M2,3L5,3L8,3M2,5L8,5M2,7L5,7L8,7"></path>
+					</svg>
+				</div>
 			</div>
 			<div id="hiding-zone">
 				<button id="copy-room-link" title="Copy room link">
@@ -33,14 +36,6 @@
 					<input type="text" id="media-url" aria-label="Video URL or YouTube link" placeholder="Video URL or YouTube link" autocomplete="off"/>
 					<button>&#9654;</button>
 				</div>
-				<h2 class="small">Choose your avatar's color:</h2>
-				<ul class="btColorList">
-					<li class="btColor"></li>
-					<li class="btColor"></li>
-					<li class="btColor"></li>
-					<li class="btColor"></li>
-					<li class="btColor"></li>
-				</ul>
 				<div class="users-panel">
 					<h2 class="small">In this room:</h2>
 					<div id="users-container"></div>

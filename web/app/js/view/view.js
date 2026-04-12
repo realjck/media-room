@@ -66,6 +66,19 @@ View.addUser = (username, color) => {
     $("#users-container").append(html);
 }
 
+View.addSelfUser = (username, color, colors) => {
+    const dots = colors.map(c =>
+        `<li class="btColor" style="background-color:${c}"></li>`
+    ).join('');
+    const html = `<div id="self-badge-wrap">
+        <div id="self-badge" class="speech-bubble-user" style="background-color:${color}">${username}<svg class="self-badge-arrow" width="7" height="5" viewBox="0 0 7 5" fill="rgba(255,255,255,0.5)"><path d="M0 0h7L3.5 5z"/></svg></div>
+        <div id="self-color-picker">
+            <ul class="btColorList">${dots}</ul>
+        </div>
+    </div>`;
+    $("#users-container").prepend(html);
+}
+
 View.removeUser = (username) => {
     $('#users-container .speech-bubble-user').each(function() {
         if ($(this).text().trim() === username) {
