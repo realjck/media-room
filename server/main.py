@@ -70,6 +70,8 @@ async def handle_clients(websocket: WebSocketServerProtocol):
                         await broadcast(msg, channel)
                     else:
                         del channels[channel]
+                        if channel in channel_locks:
+                            del channel_locks[channel]
 
 
 async def broadcast(message: str, channel_name: str, prefix: str = ""):
