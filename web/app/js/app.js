@@ -1,6 +1,6 @@
 // =============================================================================
 // MEDIA ROOM
-// Version: 0.8.0
+// Version: 0.8.1
 // =============================================================================
 
 import { loadSettings } from "./util/load-settings.js";
@@ -9,7 +9,7 @@ import { JQueryForm } from "./util/jquery-form.js";
 import { View } from "./view/view.js";
 import { MediaPlayer } from './util/media-player.js';
 
-const VERSION = '0.8.0';
+const VERSION = '0.8.1';
 
 /**
  * MAIN APP
@@ -144,6 +144,10 @@ function askUserName() {
  * SEND AND ACTIVE GREETINGS
  */
 function makePresentation(){
+
+  // Reset user state from any previous login attempt
+  MR.users = [];
+  $('#users-container').empty();
 
   // Register users saying welcome in return:
   ServerConnector.addListener('welcome', (user) => {
