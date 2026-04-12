@@ -87,7 +87,7 @@ YouTube note: the IFrame API has no `seeked` event — only play/pause are synch
 - `MR.user` — `{name, color}` (color is an index into `MR.userColors`)
 - `MR.users` — array of other connected users
 
-**UI flow:** `loadSettings` → `askRoom()` → `askUserName()` → `ServerConnector.login()` → `makePresentation()` → `initTalk()` / `initColorChange()` / `initMedia()`
+**UI flow:** `loadSettings` → (hash check: `askRoom()` or direct `askUserName()`) → `ServerConnector.login()` → `makePresentation()` → `View.addSelfUser()` → `initTalk()` / `initColorChange()` / `initMedia()`
 
 ### YouTube Player
 
@@ -96,12 +96,37 @@ The YT IFrame API **replaces** `<div id="yt-player">` with `<iframe id="yt-playe
 - Before each YT load, `_createPlayer()` recreates the inner div via `$('#yt-player-wrap').html('<div id="yt-player"></div>')`
 - `ui-feats.js` uses a `ResizeObserver` on `#yt-player-wrap` and a `MutationObserver` (with `subtree: true`) to detect iframe insertion, then computes pixel-perfect 16:9 dimensions and sets them via `style.setProperty(..., 'important')`
 
+### URL Hash Routing
+
+Room names are encoded in the URL hash: `https://mediaroom.pxly.fr#lounge`.
+
+- On page load, `app.js` reads `location.hash` — if valid (`^\w+$`), sets `MR.currentChannel` and skips `askRoom()`, going directly to `askUserName()`
+- When the user submits the room name modal, `location.hash` is set to the room name
+- The close button on the username modal clears the hash via `history.replaceState` and returns to `askRoom()`
+- No server-side rewrite needed — hash routing is fully client-side
+
 ### Landing Page
 
 `index.html` shows two sequential modals (room name → username) before entering the app. The landing page includes:
-- Title "Media Room" (Bebas Neue font) + subtitle
+- Modal 1 (`#modal-roomname-dialog`): "Join or create a room:" label, inline input + Enter button
+- Modal 2 (`#modal-username-dialog`): "What's your name?" label, color picker, Enter button — with a floating `#room-welcome` tag above it showing the room name
 - GitHub corner ribbon (CSS diagonal banner, top-right) — hidden on room entry via `$('#github-ribbon').hide()` in `makePresentation()`
 - Dot-grid background on `body`
+
+### Sidebar — High Panel
+
+The high panel (`#high-panel`) at the top of the left sidebar contains:
+- `.panel-header`: mascot icon + "MEDIA ROOM" (Bebas Neue) on the left, hamburger toggle on the right — flex row, collapses cleanly
+- `#copy-room-link`: button displaying "Link to room_name" — copies `location.href` to clipboard via `navigator.clipboard`
+- `#media-form`: video URL input
+- `.users-panel` / `#users-container`: user badges. The current user's badge (`#self-badge`) is prepended with a color picker dropdown (`#self-color-picker`) that opens on click — other users' badges are non-interactive
+
+### Icons (`web/app/images/`)
+
+Custom SVG icons drawn for this project (no icon library):
+- `mascot.svg` — app mascot / logo
+- `copy-link.svg` — chain link icon for copy-to-clipboard actions
+- `send.svg` — paper plane icon for the send message button
 
 ### Backend (server/main.py)
 
