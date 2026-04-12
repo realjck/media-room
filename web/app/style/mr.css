@@ -354,7 +354,6 @@ a:hover {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
 }
 .right-panel {
     background-color: black;
@@ -456,7 +455,8 @@ li.btColor.active {
     border-color: #444;
 }
 .box-container {
-    height: calc(100vh - 8em);
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column-reverse;
     overflow-x: hidden;
