@@ -89,6 +89,7 @@ function askUserName() {
 
   // USER NAME
   // ---------
+  $("#room-welcome-name").text(MR.currentChannel);
   $("#modal-username-dialog").show();
   // color buttons:
   MR.user.color = Math.floor(Math.random()*MR.userColors.length);
