@@ -634,6 +634,7 @@ li.btColor.active {
 }
 .media-form input {
     flex: 1;
+    min-width: 0;
     width: auto;
     font-size: 0.8em;
     padding: 4px 8px;

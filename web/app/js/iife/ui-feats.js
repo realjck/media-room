@@ -29,6 +29,8 @@ $(document).ready(() => {
 
     // PAGE SPIT RESIZER
     // -----------------
+    const MIN_LEFT = 180;
+    const MIN_RIGHT = 300;
     let isResizing = false;
     let lastDownX = 0;
     $('.divider').mousedown((e) => {
@@ -43,10 +45,10 @@ $(document).ready(() => {
     $(document).mousemove(function(e) {
         if (isResizing) {
             let offset = e.clientX - lastDownX;
-            let leftPanelWidth = $(".left-panel").width();
-            let rightPanelWidth = $(".right-panel").width();
-            $(".left-panel").width(leftPanelWidth + offset);
-            $(".right-panel").width(rightPanelWidth - offset);
+            const newLeft = Math.max(MIN_LEFT, $(".left-panel").width() + offset);
+            const newRight = Math.max(MIN_RIGHT, $(".right-panel").width() - offset);
+            $(".left-panel").width(newLeft);
+            $(".right-panel").width(newRight);
             lastDownX = e.clientX;
         }
     }).mouseup(() => {
