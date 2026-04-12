@@ -211,7 +211,7 @@ function makePresentation(){
   initColorChange();
 
   // show room name + copy link button
-  $("#room-name").html(MR.currentChannel);
+  $("#room-name").text(MR.currentChannel);
   $("#copy-room-link").on("click", copyRoomLink);
 
   // next:
