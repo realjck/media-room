@@ -25,8 +25,12 @@ ServerConnector.login = (user, channel, callback) => {
 
         if (match && match[1]) {
             const fn = match[1].trim();
-            const data = JSON.parse(message.match(/^(?:[^:]*:){2}(.*)$/)[1]);
-            _events[fn](data); // Launch event
+            try {
+                const data = JSON.parse(message.match(/^(?:[^:]*:){2}(.*)$/)[1]);
+                if (typeof _events[fn] === 'function') _events[fn](data);
+            } catch (e) {
+                console.error('Message parse error:', e);
+            }
         } else {
             // Server messages
             if (message.substring(0,1) === '>') {
