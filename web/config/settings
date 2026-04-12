@@ -1,2 +1,2 @@
 DEV=false
-URL=wss://mediaroom.pxly.fr:8443
+URL=wss://your-server.com:8443
