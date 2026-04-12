@@ -1,3 +1,2 @@
-VERSION=0.7.0
 DEV=false
-URL=wss://your-server.com:8443
+URL=wss://mediaroom.pxly.fr:8443

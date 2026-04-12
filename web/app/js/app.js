@@ -1,8 +1,15 @@
+// =============================================================================
+// MEDIA ROOM
+// Version: 0.8.0
+// =============================================================================
+
 import { loadSettings } from "./util/load-settings.js";
 import { ServerConnector } from './util/server-connector.js';
 import { JQueryForm } from "./util/jquery-form.js";
 import { View } from "./view/view.js";
 import { MediaPlayer } from './util/media-player.js';
+
+const VERSION = '0.8.0';
 
 /**
  * MAIN APP
@@ -38,9 +45,8 @@ let _syncTimeout = null;
  * LOAD SETTINGS
  */
 loadSettings('./config/settings',() => {
-  console.log('** MEDIA ROOM v'+window.VERSION+' **');
-  console.log(!window.DEV ? 'Production mode'
-    : 'Quick login johndoe:dev');
+  console.log('%c MEDIA ROOM %c v'+VERSION, 'background: #35495e; padding: 5px; border-radius: 7px 0 0 7px; color: #fff', 'background: #18859e; padding: 5px 10px 5px 5px; border-radius: 0 7px 7px 0; color: #fff');
+  console.log('%c' + (!window.DEV ? 'Production mode' : 'Quick login johndoe:dev'), 'color: #18859e');
 
   // Prepare for alreadyTaken and logout
   ServerConnector.addListener('alreadyTaken', message => {
