@@ -616,9 +616,6 @@ li.btColor.active {
     align-items: center;
     justify-content: space-between;
     padding: 6px 8px 4px;
-}
-
-#toggle-high-panel {
     cursor: pointer;
 }
 
