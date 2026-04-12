@@ -24,8 +24,26 @@
 }
 
 #roomname-card {
-    min-width: 360px;
+    min-width: 340px;
     border-top-color: #1a1a1a;
+    padding: 0 20px 20px;
+}
+
+.roomname-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: -4px;
+    margin-bottom: 0;
+}
+
+.roomname-actions input {
+    flex: 1;
+    width: auto;
+}
+
+#roomname::placeholder {
+    color: #3a3a3a;
 }
 
 #roomname-card::before {
@@ -117,9 +135,128 @@
     background: #2a2a2a;
     color: #fff !important;
 }
-.dialog-title {
-    border: 0 !important;
-    width: 85%;
+/* Room welcome tag (floats above username modal) */
+#room-welcome {
+    position: absolute;
+    bottom: calc(100% + 48px);
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    white-space: nowrap;
+    background: #111;
+    border: 1px solid #2c2c2c;
+    border-radius: 10px;
+    padding: 10px 28px 13px;
+    cursor: pointer;
+    z-index: 1;
+    transition: border-color 0.2s;
+}
+
+#room-welcome:hover {
+    border-color: #555;
+}
+
+#room-welcome:hover .copy-icon {
+    opacity: 1;
+}
+
+.room-welcome-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+#room-welcome::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: -1px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #444, transparent);
+}
+
+#room-welcome::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 9px solid transparent;
+    border-top-color: #2c2c2c;
+}
+
+.room-welcome-label {
+    display: block;
+    font-size: 0.58em;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+#room-welcome-name {
+    font-family: Menlo, Consolas, monospace;
+    font-weight: 700;
+    font-size: 1.4em;
+    letter-spacing: 0.04em;
+    color: #fff;
+    line-height: 1;
+    text-shadow: 0 0 24px rgba(255, 255, 255, 0.15);
+}
+
+.copy-icon {
+    width: 13px;
+    height: 13px;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+}
+
+/* Username card layout */
+#username-card {
+    min-width: 300px;
+    padding: 24px 24px 20px;
+}
+
+.username-question {
+    display: block;
+    font-size: 1em;
+    font-weight: 600;
+    color: #ccc;
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
+    cursor: default;
+}
+
+.username-hint {
+    font-size: 0.62em;
+    color: #3a3a3a;
+    letter-spacing: 0.06em;
+    margin: 6px 0 16px;
+}
+
+.username-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.username-actions #listColor {
+    width: auto;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+#username::placeholder {
+    color: #3a3a3a;
+}
+
+#message::placeholder {
+    color: #3a3a3a;
 }
 input {
     width: 97%;
@@ -141,6 +278,7 @@ input {
 }
 .inline {
     display: inline-flex;
+    align-items: center;
 }
 /* Jquery-form */
 .invalid {
@@ -217,7 +355,6 @@ a:hover {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
 }
 .right-panel {
     background-color: black;
@@ -277,19 +414,50 @@ li.btColor.active {
 }
 
 /* Chat: */
-.left-panel textarea {
-    width: 100%;
+#talk-area {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 6px 10px;
+}
+
+#talk-area textarea {
+    flex: 1;
+    min-width: 0;
     max-height: 5em;
-    margin-bottom: 1em;
+    margin: 0;
     resize: none;
-    border: 0;
-    background-color: #222222;
-    padding: 1em;
+    background: var(--input-back-color);
+    border: 0.0625rem solid #333;
+    border-radius: var(--universal-border-radius);
+    padding: 0.6em 0.8em;
     overflow-x: hidden;
-    line-height: 1.2em;
+    line-height: 1.4em;
+    box-sizing: border-box;
+}
+
+#talk-area button {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--universal-border-radius);
+    background: #242424;
+    border: 0.0625rem solid #333;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+#talk-area button:hover {
+    background: #2e2e2e;
+    border-color: #444;
 }
 .box-container {
-    height: calc(100vh - 8em);
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column-reverse;
     overflow-x: hidden;
@@ -328,12 +496,24 @@ li.btColor.active {
 
 /* High Panel */
 .high-panel {
-    background-color: #303030;
+    background-color: #222;
 }
-.high-panel h1 {
-    margin-top: 10px;
-    margin-bottom: 0;
+
+.panel-mascot {
+    width: 18px;
+    height: auto;
+    margin-right: 7px;
+    opacity: 0.7;
 }
+
+.panel-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05em;
+    letter-spacing: 0.14em;
+    color: #777;
+    line-height: 1;
+}
+
 .high-panel h2 {
     margin-top: -5px;
     margin-bottom: 5px;
@@ -344,8 +524,42 @@ li.btColor.active {
     color: #e0e0e0;
 }
 
+#copy-room-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #242424;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #999;
+    font-size: x-small;
+    letter-spacing: 0.03em;
+    padding: 5px 10px;
+    cursor: pointer;
+    width: calc(100% - 10px);
+    margin: 2px 5px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+#copy-room-link:hover {
+    background: #2e2e2e;
+    border-color: #444;
+    color: #ccc;
+}
+
+#copy-room-link:hover .copy-icon {
+    opacity: 0.8;
+}
+
+#copy-room-link .copy-icon {
+    opacity: 0.5;
+}
+
 .users-panel {
-    background-color: #282828;
+    background-color: #1c1c1c;
     padding: 5px 0 5px 0;
 }
 
@@ -362,8 +576,46 @@ li.btColor.active {
     margin: 5px;
 }
 
-#toggle-high-panel {
-    margin-top: -20px;
+#self-badge-wrap {
+    position: relative;
+    display: inline-block;
+    margin: 5px;
+}
+
+#self-badge {
+    cursor: pointer;
+    margin: 0;
+}
+
+.self-badge-arrow {
+    margin-left: 4px;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+#self-color-picker {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 8px 10px;
+    z-index: 100;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+
+#self-color-picker .btColorList {
+    width: auto;
+    margin: 0;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px 4px;
     cursor: pointer;
 }
 

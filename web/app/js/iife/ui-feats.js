@@ -57,7 +57,7 @@ $(document).ready(() => {
     // TOGGLE HIGH PANEL
     // -----------------
     let isHighPanelOpen = true;
-    $("#toggle-high-panel").on('click', (e) => {
+    $(".panel-header").on('click', (e) => {
        if (isHighPanelOpen) {
            isHighPanelOpen = false;
            $("#hiding-zone").hide(350);

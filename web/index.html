@@ -15,29 +15,27 @@
 	<!-- Left Panel: -->
 	<div class="left-panel">
 		<div class="high-panel">
-			<div class="inline">
-				<h1 class="small">MediaRoom-v</h1>
-			</div>
-			<div id="toggle-high-panel">
-				<svg	class="hb" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" stroke="#eee" stroke-width=".6"
-						fill="rgba(0,0,0,0)" stroke-linecap="round">
-					<path d="M2,3L5,3L8,3M2,5L8,5M2,7L5,7L8,7"></path>
-				</svg>
+			<div class="panel-header">
+				<div class="inline">
+					<img class="panel-mascot" src="./app/images/mascot.svg" alt="mascot"/>
+					<span class="panel-title">MEDIA ROOM</span>
+				</div>
+				<div id="toggle-high-panel">
+					<svg class="hb" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" stroke="#eee" stroke-width=".6"
+							fill="rgba(0,0,0,0)" stroke-linecap="round">
+						<path d="M2,3L5,3L8,3M2,5L8,5M2,7L5,7L8,7"></path>
+					</svg>
+				</div>
 			</div>
 			<div id="hiding-zone">
-				<h2 class="small">Room: <span id="room-name"></span></h2>
+				<button id="copy-room-link" title="Copy room link">
+					<img class="copy-icon" src="./app/images/copy-link.svg" alt="copy link"/>
+					Link to <span id="room-name"></span>
+				</button>
 				<div id="media-form" class="media-form">
 					<input type="text" id="media-url" aria-label="Video URL or YouTube link" placeholder="Video URL or YouTube link" autocomplete="off"/>
 					<button>&#9654;</button>
 				</div>
-				<h2 class="small">Choose your avatar's color:</h2>
-				<ul class="btColorList">
-					<li class="btColor"></li>
-					<li class="btColor"></li>
-					<li class="btColor"></li>
-					<li class="btColor"></li>
-					<li class="btColor"></li>
-				</ul>
 				<div class="users-panel">
 					<h2 class="small">In this room:</h2>
 					<div id="users-container"></div>
@@ -49,19 +47,11 @@
 			<!-- speech bubbles -->
 		</div>
 		<!-- Left Panel - Send messages area -->
-		<div id="talk-area" class="row">
-			<div class="col-sm-8">
-				<label><textarea type="" id="message" placeholder="Send a message to the room"></textarea></label>
-			</div>
-			<div class="col-sm-4">
-				<button type="submit">
-					<svg	width="25px" height="25px" fill="#888" viewBox="0 0 1e3 1e3"
-							xmlns="http://www.w3.org/2000/svg">
-						<ellipse cx="547.5" cy="500.5" rx="407.5" ry="267.5"/>
-						<path d="m134.5 823.5s130-86 173-172l183 66s-65 84-356 106z"/>
-					</svg>
-				</button>
-			</div>
+		<div id="talk-area">
+			<textarea id="message" placeholder="Send a message to the room"></textarea>
+			<button type="submit" aria-label="Send message">
+				<img src="./app/images/send.svg" alt="send" width="15" height="15"/>
+			</button>
 		</div>
 	</div>
 	<!-- Divider: -->
@@ -91,23 +81,12 @@
 				<div class="landing-subtitle">Chat and watch videos together</div>
 			</div>
 		</div>
-		<fieldset>
-			<legend>Join room</legend>
-			<label for="roomname">Name of the room to join or create:</label>
-			<div class="row">
-				<div class="col-sm-8">
-					<input type="text" id="roomname" autocomplete="off" placeholder="Room name"/>
-				</div>
-				<div class="col-sm-4 center">
-					<button type="submit">Enter</button>
-				</div>
-				<div class="small">
-					Alphanumeric characters and underscores_<br>
-					Special characters and spaces are not allowed<br>
-					Case non-sensitive
-				</div>
-			</div>
-		</fieldset>
+		<label class="username-question" for="roomname">Join or create a room:</label>
+		<div class="roomname-actions">
+			<input type="text" id="roomname" autocomplete="off" placeholder="room_name"/>
+			<button type="submit">Enter</button>
+		</div>
+		<div class="username-hint">Letters, numbers and underscores, case insensitive</div>
 	</div>
 </div>
 <!-- 'Ask Username' modal -->
@@ -115,33 +94,27 @@
 <input id="username-modal" type="checkbox" class="modal">
 <div id="modal-username-dialog" role="dialog" aria-labelledby="dialog-title">
 	<div id="username-card" class="card">
+		<div id="room-welcome" title="Copy room link">
+			<span class="room-welcome-label">Welcome to the room</span>
+			<span class="room-welcome-name-row">
+				<span id="room-welcome-name"></span>
+				<img class="copy-icon" src="./app/images/copy-link.svg" alt="copy link"/>
+			</span>
+		</div>
 		<div class="modal-close"></div>
-		<h3 class="section dialog-title">Create Your Avatar</h3>
-		<fieldset>
-			<legend>About you</legend>
-			<label for="username">What's your name?</label>
-			<input type="text" id="username" autocomplete="name" placeholder="Pseudonym"/>
-			<div class="small margin-bottom-10px">
-				Alphanumeric characters and underscores_<br>
-				Special characters and spaces are not allowed.
-			</div>
-			<div>What color would you like to choose?</div>
-			<div class="row">
-				<div class="col-sm-8">
-					<ul id="listColor">
-						<li class="btColor"></li>
-						<li class="btColor"></li>
-						<li class="btColor"></li>
-						<li class="btColor"></li>
-						<li class="btColor"></li>
-					</ul>
-					<div id="color1" class="btDot"></div>
-				</div>
-				<div class="col-sm-4 center">
-					<button>Enter</button>
-				</div>
-			</div>
-		</fieldset>
+		<label class="username-question" for="username">What's your name?</label>
+		<input type="text" id="username" autocomplete="name" placeholder="Pseudonym"/>
+		<div class="username-hint">Letters, numbers and underscores only</div>
+		<div class="username-actions">
+			<ul id="listColor">
+				<li class="btColor"></li>
+				<li class="btColor"></li>
+				<li class="btColor"></li>
+				<li class="btColor"></li>
+				<li class="btColor"></li>
+			</ul>
+			<button>Enter</button>
+		</div>
 	</div>
 </div>
 <div class="github-ribbon-wrap" id="github-ribbon">

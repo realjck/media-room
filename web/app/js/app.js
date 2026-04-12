@@ -41,7 +41,6 @@ loadSettings('./config/settings',() => {
   console.log('** MEDIA ROOM v'+window.VERSION+' **');
   console.log(!window.DEV ? 'Production mode'
     : 'Quick login johndoe:dev');
-  $("h1").html("MediaRoom v"+window.VERSION);
 
   // Prepare for alreadyTaken and logout
   ServerConnector.addListener('alreadyTaken', message => {
@@ -57,9 +56,27 @@ loadSettings('./config/settings',() => {
     MR.currentChannel='dev';
     ServerConnector.login(MR.user.name, MR.currentChannel, makePresentation);
   } else {
-    askRoom();
+    const hashRoom = location.hash.slice(1);
+    if (hashRoom && /^\w+$/.test(hashRoom)) {
+      MR.currentChannel = hashRoom.toLowerCase();
+      location.replace(location.pathname + '#' + MR.currentChannel);
+      askUserName();
+    } else {
+      askRoom();
+    }
   }
 });
+
+/**
+ * Copy current room URL (with hash) to clipboard
+ */
+function copyRoomLink() {
+  navigator.clipboard.writeText(location.href).then(() => {
+    View.toast('Room link copied!');
+  }).catch(() => {
+    View.toast('Could not copy link');
+  });
+}
 
 /**
  * ASK ROOM TO CONNECT
@@ -69,6 +86,7 @@ function askRoom() {
   $("#modal-roomname-dialog").show();
   JQueryForm.init('roomname-card', [['roomname', /^\w+$/]], (data) => {
     MR.currentChannel = data.roomname.toLowerCase();
+    location.hash = MR.currentChannel;
     $("#modal-roomname-dialog").hide();
     askUserName();
   });
@@ -81,6 +99,8 @@ function askUserName() {
 
   // USER NAME
   // ---------
+  $("#room-welcome-name").text(MR.currentChannel);
+  $("#room-welcome").off("click").on("click", copyRoomLink);
   $("#modal-username-dialog").show();
   // color buttons:
   MR.user.color = Math.floor(Math.random()*MR.userColors.length);
@@ -99,7 +119,9 @@ function askUserName() {
         .eq(MR.user.color).addClass('active');
   }
   // bt close:
-  $("#modal-username-dialog .modal-close").on("click", () => {
+  $("#modal-username-dialog .modal-close").off("click").on("click", () => {
+    history.replaceState(null, '', location.pathname);
+    MR.currentChannel = '';
     $("#modal-username-dialog").hide();
     // go back to room selection:
     askRoom();
@@ -152,7 +174,7 @@ function makePresentation(){
   }
   
   function addOtherUser(user){
-    if (!MR.users.find(u => u.name === user.name)) {
+    if (user.name !== MR.user.name && !MR.users.find(u => u.name === user.name)) {
       MR.users.push(user);
       View.addUser(user.name, MR.userColors[user.color]);
     }
@@ -184,11 +206,13 @@ function makePresentation(){
   // init Talk
   initTalk();
 
-  // init Color change
+  // Add self badge with color picker, then wire it up
+  View.addSelfUser(MR.user.name, MR.userColors[MR.user.color], MR.userColors);
   initColorChange();
 
-  // show room name
+  // show room name + copy link button
   $("#room-name").html(MR.currentChannel);
+  $("#copy-room-link").on("click", copyRoomLink);
 
   // next:
   initMedia();
@@ -220,30 +244,43 @@ function initTalk() {
 }
 
 function initColorChange() {
-  activeBtColor();
-  for (let i=0; i<MR.userColors.length; i++){
-    const bt = $(".btColorList li").eq(i);
-    bt[0].n = i;
-    bt.css("background-color", MR.userColors[i]);
-    bt.on("click", (e) => {
-      MR.user.color = $(e.currentTarget)[0].n;
-      ServerConnector.say('color', MR.user); // Send update to other clients
-      activeBtColor();
-    });
-  }
-  function activeBtColor(){
-    $(".btColorList li").removeClass('active')
-        .eq(MR.user.color).addClass('active');
+  function activeBtColor() {
+    $(".btColorList li").removeClass('active').eq(MR.user.color).addClass('active');
+    $('#self-badge').css('background-color', MR.userColors[MR.user.color]);
   }
 
-  // Listener and color update
+  // Toggle picker on own badge click only
+  $('#self-badge').on('click', () => {
+    $('#self-color-picker').toggle(150);
+  });
+
+  // Close picker on outside click
+  $(document).on('click', (e) => {
+    if (!$(e.target).closest('#self-badge-wrap').length) {
+      $('#self-color-picker').hide();
+    }
+  });
+
+  // Wire color buttons
+  for (let i = 0; i < MR.userColors.length; i++) {
+    const bt = $('.btColorList li').eq(i);
+    bt[0].n = i;
+    bt.on('click', (e) => {
+      MR.user.color = $(e.currentTarget)[0].n;
+      ServerConnector.say('color', MR.user);
+      activeBtColor();
+      $('#self-color-picker').hide(150);
+    });
+  }
+  activeBtColor();
+
+  // Listener for other users' color updates
   ServerConnector.addListener('color', data => {
     const userToUpdate = MR.users.findLast(user => user.name === data.name);
     if (userToUpdate) {
       userToUpdate.color = data.color;
     }
     View.updateSpeechBubbleColor(data.name, MR.userColors[data.color]);
-    // fun message:
     const fun_msg = [
       'is glowing up with their new color!',
       'traded in their old avatar for a new hue!',
