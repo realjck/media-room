@@ -188,7 +188,8 @@ function makePresentation(){
 
   // add logouts of people
   ServerConnector.addListener('logout', username => {
-    const col = MR.users.findLast(user => user.name === username).color;
+    const found = MR.users.findLast(user => user.name === username);
+    const col = found ? found.color : 0;
     MR.users = MR.users.filter(user => user.name !== username);
     View.removeUser(username);
     const fun_msg = [

@@ -20,7 +20,7 @@ View.toast = (message, color = undefined) => {
     $(".toast").text(message);
     $(".toast").show();
     clearTimeout(_toastTimer);
-    _toastTimer = setInterval(() => {
+    _toastTimer = setTimeout(() => {
         $(".toast").hide();
     }, 4200);
 }
