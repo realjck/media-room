@@ -4,25 +4,26 @@
  * @param {string} filepath
  * @param {function} callback
  */
+const ALLOWED_SETTINGS = ['DEV', 'URL'];
+
 const loadSettings = (filepath, callback) => {
     fetch(filepath)
         .then(response => response.text())
         .then(data => {
-            const envVariables = data.split('\n');
-            envVariables.forEach(variable => {
+            data.split('\n').forEach(variable => {
                 let [name, value] = variable.split('=');
-                if (name && value) {
-                    value = value.trim();
-                    if (value.toLowerCase() === 'true'){
-                        value = true;
-                    }  else if (value.toLowerCase() === 'false'){
-                        value = false;
-                    }
-                    window[name.trim()] = value;
-                }
+                name = name && name.trim();
+                if (!name || !value || !ALLOWED_SETTINGS.includes(name)) return;
+                value = value.trim();
+                if (value.toLowerCase() === 'true') value = true;
+                else if (value.toLowerCase() === 'false') value = false;
+                window[name] = value;
             });
             callback();
         })
-        .catch(error => console.error('Error loading settings file:', error));
+        .catch(error => {
+            console.error('Error loading settings file:', error);
+            callback();
+        });
 }
 export {loadSettings};
