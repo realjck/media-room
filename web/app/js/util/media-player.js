@@ -39,8 +39,8 @@ function _withRemoteAction(fn) {
     // YouTube onStateChange fires over IPC with unpredictable latency
     setTimeout(() => { _remoteAction = false; }, 2000);
   } else {
-    // Direct video events fire synchronously — clear in next microtask
-    Promise.resolve().then(() => { _remoteAction = false; });
+    // Direct video events fire asynchronously (macrotask) — use a short timeout
+    setTimeout(() => { _remoteAction = false; }, 300);
   }
 }
 
@@ -60,6 +60,7 @@ function _applySyncPending() {
 }
 
 function _loadDirect(url, onReady) {
+  if (_ytPlayer) { _ytPlayer.stopVideo(); }
   $('#yt-player-wrap').hide();
   $('video').show();
   $('video source').attr('src', url);
@@ -108,6 +109,8 @@ function _onYTStateChange(event) {
 // is not broadcast. Only play/pause events are synchronized for YouTube.
 
 function _loadYouTube(url, onReady) {
+  const v = $('video')[0];
+  if (v && !v.paused) { v.pause(); }
   $('video').hide();
   $('#yt-player-wrap').show();
   const videoId = _extractYouTubeId(url);
