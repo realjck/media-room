@@ -1,6 +1,6 @@
 // =============================================================================
 // MEDIA ROOM
-// Version: 0.8.1
+// Version: 0.8.2
 // =============================================================================
 
 import { loadSettings } from "./util/load-settings.js";
@@ -9,7 +9,7 @@ import { JQueryForm } from "./util/jquery-form.js";
 import { View } from "./view/view.js";
 import { MediaPlayer } from './util/media-player.js';
 
-const VERSION = '0.8.1';
+const VERSION = '0.8.2';
 
 /**
  * MAIN APP
@@ -40,6 +40,27 @@ const MR = {
 
 let _syncDone = false;
 let _syncTimeout = null;
+
+let _typingUsers = {};
+
+function _clearTypingUser(username) {
+  if (_typingUsers[username]) {
+    clearTimeout(_typingUsers[username]);
+    delete _typingUsers[username];
+  }
+  _updateTypingIndicator();
+}
+
+function _updateTypingIndicator() {
+  const keys = Object.keys(_typingUsers);
+  if (keys.length === 0) {
+    $('#typing-name').text('');
+    $('.typing-dots').css('display', 'none');
+  } else {
+    $('#typing-name').text(keys[keys.length - 1] + ' is typing');
+    $('.typing-dots').css('display', 'inline-flex');
+  }
+}
 
 /**
  * LOAD SETTINGS
@@ -148,6 +169,8 @@ function makePresentation(){
   // Reset user state from any previous login attempt
   MR.users = [];
   $('#users-container').empty();
+  _typingUsers = {};
+  _updateTypingIndicator();
 
   // Register users saying welcome in return:
   ServerConnector.addListener('welcome', (user) => {
@@ -196,6 +219,7 @@ function makePresentation(){
     const col = found ? found.color : 0;
     MR.users = MR.users.filter(user => user.name !== username);
     View.removeUser(username);
+    _clearTypingUser(username);
     const fun_msg = [
       'vanish from the conversation',
       'exit the discussion',
@@ -238,20 +262,65 @@ function makePresentation(){
 }
 
 function initTalk() {
+  let _typingInterval = null;
+  let _typingStopTimer = null;
 
-  // Listen to talk events
+  function _sendTyping() {
+    ServerConnector.say('typing', MR.user);
+  }
+
+  function _stopTyping() {
+    if (!_typingInterval) return;
+    clearInterval(_typingInterval);
+    _typingInterval = null;
+    clearTimeout(_typingStopTimer);
+    _typingStopTimer = null;
+    ServerConnector.say('typingStop', MR.user);
+  }
+
+  // Emitter: watch textarea
+  $('#message').off('input.typing').on('input.typing', () => {
+    const val = $('#message').val();
+    if (val.length > 0) {
+      if (!_typingInterval) {
+        _sendTyping();
+        _typingInterval = setInterval(_sendTyping, 2000);
+      }
+      clearTimeout(_typingStopTimer);
+      _typingStopTimer = setTimeout(() => { _typingStopTimer = null; _stopTyping(); }, 3000);
+    } else {
+      _stopTyping();
+    }
+  });
+
+  // Receiver: someone started typing
+  ServerConnector.addListener('typing', (data) => {
+    if (data.name === MR.user.name) return;
+    if (_typingUsers[data.name]) clearTimeout(_typingUsers[data.name]);
+    _typingUsers[data.name] = setTimeout(() => {
+      delete _typingUsers[data.name];
+      _updateTypingIndicator();
+    }, 3000);
+    _updateTypingIndicator();
+  });
+
+  // Receiver: someone stopped typing
+  ServerConnector.addListener('typingStop', (data) => {
+    if (data.name === MR.user.name) return;
+    _clearTypingUser(data.name);
+  });
+
+  // Receiver: incoming chat message
   ServerConnector.addListener('talk', (data) => {
     const isOther = data.user.name !== MR.user.name || data.user.color !== MR.user.color;
     View.speechBubble(data.user.name, MR.userColors[data.user.color], data.message, isOther);
   });
 
-  // talk with talk-area form
+  // Submit form — JQueryForm clears the field without firing 'input', so stop heartbeat here
   JQueryForm.init('talk-area', [['message', /^[^<>]+$/]], (data) => {
-    const obj = {};
-    obj.message = data.message;
-    obj.user = MR.user;
-    ServerConnector.say('talk', obj);
-  })
+    _stopTyping();
+    ServerConnector.say('talk', { message: data.message, user: MR.user });
+  });
 }
 
 function initColorChange() {
