@@ -269,10 +269,9 @@ function initTalk() {
   }
 
   function _stopTyping() {
-    if (_typingInterval) {
-      clearInterval(_typingInterval);
-      _typingInterval = null;
-    }
+    if (!_typingInterval) return;
+    clearInterval(_typingInterval);
+    _typingInterval = null;
     ServerConnector.say('typingStop', MR.user);
   }
 
