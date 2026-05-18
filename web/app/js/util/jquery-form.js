@@ -15,11 +15,11 @@ const JQueryForm = {};
 JQueryForm.init = (form, inputs, callback) => {
     
     // click on button:
-    $("#"+form+" button").on("click", getDataFromInput);
+    $("#"+form+" button").off("click").on("click", getDataFromInput);
 
     // keypress enter on inputs:
     inputs.forEach(input => {
-        $("#"+input[0]).on("keypress", (event) => {
+        $("#"+input[0]).off("keypress").on("keypress", (event) => {
             if (event.which === 13){
                 event.preventDefault();
                 getDataFromInput();
