@@ -77,7 +77,7 @@ YouTube note: the IFrame API has no `seeked` event — only play/pause are synch
 | `app/js/app.js` | Main app: state (`MR` object), UI flow, event wiring, media sync |
 | `app/js/util/server-connector.js` | WebSocket client with pub/sub (`addListener`, `say`) |
 | `app/js/util/load-settings.js` | Loads `config/settings` (key=value) into `window.*` globals |
-| `app/js/util/jquery-form.js` | Form validation with regex rules |
+| `app/js/util/jquery-form.js` | Form validation with regex rules. Uses `.off().on()` to replace handlers on re-init, preventing accumulation across re-logins |
 | `app/js/util/media-player.js` | Unified player: detects YouTube vs direct URL, wraps YT IFrame API. `_ytReady` flag gates all YT player method calls until `onReady` fires |
 | `app/js/view/view.js` | DOM manipulation: toasts, speech bubbles, user badges |
 | `app/js/iife/ui-feats.js` | UI interactions: panel resizer, hamburger toggle, YT aspect ratio |
@@ -112,6 +112,14 @@ Room names are encoded in the URL hash: `https://mediaroom.pxly.fr#lounge`.
 - Modal 2 (`#modal-username-dialog`): "What's your name?" label, color picker, Enter button — with a floating `#room-welcome` tag above it showing the room name
 - GitHub corner ribbon (CSS diagonal banner, top-right) — hidden on room entry via `$('#github-ribbon').hide()` in `makePresentation()`
 - Dot-grid background on `body`
+
+### Left Panel Layout
+
+The left panel is a flex column with four sections:
+1. `.high-panel` — sidebar header (collapsible)
+2. `.box-container` — scrollable chat bubbles (`flex: 1`, `flex-direction: column-reverse`)
+3. `#typing-indicator` — fixed 20px bar showing "X is typing..." with animated dots; always reserves space so bubbles never jump
+4. `#talk-area` — textarea + send button
 
 ### Sidebar — High Panel
 
