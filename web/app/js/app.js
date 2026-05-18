@@ -277,7 +277,7 @@ function initTalk() {
   }
 
   // Emitter: watch textarea
-  $('#message').on('input', () => {
+  $('#message').off('input.typing').on('input.typing', () => {
     const val = $('#message').val();
     if (val.length > 0 && !_typingInterval) {
       _sendTyping();
