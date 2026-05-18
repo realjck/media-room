@@ -263,6 +263,7 @@ function makePresentation(){
 
 function initTalk() {
   let _typingInterval = null;
+  let _typingStopTimer = null;
 
   function _sendTyping() {
     ServerConnector.say('typing', MR.user);
@@ -272,16 +273,22 @@ function initTalk() {
     if (!_typingInterval) return;
     clearInterval(_typingInterval);
     _typingInterval = null;
+    clearTimeout(_typingStopTimer);
+    _typingStopTimer = null;
     ServerConnector.say('typingStop', MR.user);
   }
 
   // Emitter: watch textarea
   $('#message').off('input.typing').on('input.typing', () => {
     const val = $('#message').val();
-    if (val.length > 0 && !_typingInterval) {
-      _sendTyping();
-      _typingInterval = setInterval(_sendTyping, 2000);
-    } else if (val.length === 0 && _typingInterval) {
+    if (val.length > 0) {
+      if (!_typingInterval) {
+        _sendTyping();
+        _typingInterval = setInterval(_sendTyping, 2000);
+      }
+      clearTimeout(_typingStopTimer);
+      _typingStopTimer = setTimeout(() => { _typingStopTimer = null; _stopTyping(); }, 3000);
+    } else {
       _stopTyping();
     }
   });
