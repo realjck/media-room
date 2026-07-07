@@ -9,7 +9,7 @@ import { JQueryForm } from "./util/jquery-form.js";
 import { View } from "./view/view.js";
 import { MediaPlayer } from './util/media-player.js';
 
-const VERSION = '0.8.2';
+const VERSION = '0.8.3';
 
 /**
  * MAIN APP
