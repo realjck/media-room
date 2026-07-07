@@ -148,6 +148,16 @@ On connect: validates login format (`split(':', 1)`), validates username and cha
 
 `websockets.serve` is configured with `max_size=65536` to prevent DoS via oversized messages.
 
+**Diagnostic logging** (stdlib `logging`, timestamped): `JOIN`/`LEAVE` with per-channel client count, and a `SLOW send` warning when a single `broadcast()` send blocks longer than `SLOW_SEND_SECONDS` (1s). The `SLOW send` line is the signal to confirm/rule out head-of-line blocking of the sequential broadcast on a slow client — the leading hypothesis for a transient chat freeze. `remote_address` is captured once at connect time (not in the `ConnectionClosed` handler) because reading it after the SSL transport is torn down raises `AttributeError`.
+
+### Security model & planned hardening
+
+The app is intentionally **open**: the only access control is the channel name (no authentication, no per-room secret — and none is wanted). Anyone who knows/guesses a room name can join, read live activity, and post. Displayed identity (`user.name`, color) comes from the client's event JSON and is **not** enforced server-side, so pseudo spoofing within a room is possible. There is **no message history**, so eavesdropping is live-only. This is an accepted trade-off for a casual shared-room chat.
+
+What is protected: chat/usernames render via jQuery `.text()` (no XSS even bypassing the client-side `/^[^<>]+$/` regex); colors are fixed-palette index lookups; login is regex-restricted (`^\w{1,32}$`) and only string-split (no injection sink); the server is pure in-memory (no eval/shell/fs/DB from user input); `max_size` caps message size.
+
+**Planned (future session): rate-limiting + connection cap.** The realistic abuse vector is a bot opening many connections or flooding a room (the sequential broadcast means a flood affects everyone in the channel). There is currently no per-IP/per-connection rate limit, no total-connection cap, and no login timeout (a client can hold a coroutine at `await recv()` without ever identifying — slowloris-style). Add these when hardening. Per-room secrets are explicitly out of scope.
+
 ### Configuration (`web/config/settings`)
 
 Plain text `KEY=VALUE` file loaded at runtime. Only whitelisted keys (`DEV`, `URL`) are written to `window.*` — all others are ignored. Key fields:
