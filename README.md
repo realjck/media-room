@@ -28,7 +28,7 @@ A minimal real-time chat room with synchronized media playback.
 Open the app and enter a room name, or navigate directly to a room via its URL hash:
 
 ```
-https://mediaroom.pxly.fr#lounge
+https://mediaroom.pxly.fr/#lounge
 ```
 
 This skips the room selection step and brings you straight to the username prompt for room `lounge`. The URL updates automatically when you enter a room, so you can copy and share it at any time.
