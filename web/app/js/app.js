@@ -1,6 +1,6 @@
 // =============================================================================
 // MEDIA ROOM
-// Version: 0.9.1
+// Version: 0.9.2
 // =============================================================================
 
 import { loadSettings } from "./util/load-settings.js";
@@ -9,7 +9,7 @@ import { JQueryForm } from "./util/jquery-form.js";
 import { View } from "./view/view.js";
 import { MediaPlayer } from './util/media-player.js';
 
-const VERSION = '0.9.1';
+const VERSION = '0.9.2';
 
 /**
  * MAIN APP
