@@ -63,6 +63,7 @@ Media events are broadcast via the existing WebSocket app event system:
 | `mediaPlay` | broadcast | `{timestamp, user}` | Someone hit play |
 | `mediaPause` | broadcast | `{timestamp, user}` | Someone hit pause |
 | `mediaSeek` | broadcast | `{timestamp, user}` | Someone scrubbed (direct video only) |
+| `mediaClear` | broadcast | `{user}` | Someone removed the media (the × on the Watching line) |
 | `mediaSyncRequest` | broadcast on join | `{user}` | New joiner requests current state |
 | `mediaSyncResponse` | reply to requester | `{url, timestamp, isPlaying}` | Existing peer sends back state |
 
@@ -126,7 +127,8 @@ The left panel is a flex column with four sections:
 The high panel (`#high-panel`) at the top of the left sidebar contains:
 - `.panel-header`: mascot icon + "MEDIA ROOM" (Bebas Neue) on the left, hamburger toggle on the right — flex row, collapses cleanly
 - `#copy-room-link`: button displaying "Link to room_name" — copies `location.href` to clipboard via `navigator.clipboard`
-- `#media-form`: video URL input
+- `#media-form`: video URL input. Submitted URLs are checked by `MediaPlayer.isValidUrl()` (http(s), well-formed YouTube id); an invalid one stays in the field
+- `#media-status`: fixed-height line under the form (never shifts the panel). Class `error` shows a red message (invalid syntax, or a load failure of the user's own URL); class `watching` shows "Watching <url>" (click copies the URL) and a × that unloads the media for the whole room via `mediaClear`
 - `.users-panel` / `#users-container`: user badges. The current user's badge (`#self-badge`) is prepended with a color picker dropdown (`#self-color-picker`) that opens on click — other users' badges are non-interactive
 
 ### Icons (`web/app/images/`)
@@ -162,7 +164,7 @@ What is protected: chat/usernames render via jQuery `.text()` (no XSS even bypas
 
 Plain text `KEY=VALUE` file loaded at runtime. Only whitelisted keys (`DEV`, `URL`) are written to `window.*` — all others are ignored. Key fields:
 - `DEV` — `true` enables auto-login bypass
-- `URL` — WebSocket server URL (e.g. `wss://host:port`)
+- `URL` — WebSocket server URL (e.g. `wss://host:port`). Note: this overwrites the native `window.URL` constructor, so `new URL()` cannot be used in the frontend
 
 This file is served as a static asset and must be accessible at `./config/settings` relative to `index.html`.
 

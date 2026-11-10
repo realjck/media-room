@@ -628,9 +628,10 @@ li.btColor.active {
 /* Media form */
 .media-form {
     display: flex;
+    align-items: center;
     gap: 5px;
     padding: 5px 5px 2px 5px;
-    margin: 0 0 1em;
+    margin: 0;
 }
 .media-form input {
     flex: 1;
@@ -645,6 +646,71 @@ li.btColor.active {
     font-size: 0.8em;
     white-space: nowrap;
     flex-shrink: 0;
+    margin: 0;
+}
+
+/* Fixed height so showing/hiding a status never shifts the panel */
+.media-status {
+    height: 20px;
+    margin: 2px 5px 0.6em;
+    padding: 0 3px;
+    display: flex;
+    align-items: center;
+    font-size: x-small;
+    color: #999;
+    overflow: hidden;
+}
+.media-status-error,
+.media-status-watching {
+    display: none;
+}
+.media-status.error .media-status-error {
+    display: block;
+    color: var(--input-invalid-color);
+}
+.media-status.watching .media-status-watching {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    width: 100%;
+}
+.media-status-label {
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #666;
+}
+.media-status-url,
+.media-status-clear {
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+    cursor: pointer;
+}
+.media-status-url {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: left;
+    color: #ccc;
+}
+.media-status-url:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+.media-status-clear {
+    flex-shrink: 0;
+    font-size: 1.4em;
+    line-height: 1;
+    color: #777;
+}
+.media-status-clear:hover {
+    color: #fff;
 }
 
 /* Typing indicator */
