@@ -478,8 +478,10 @@ function initMedia() {
   });
 
   // Remote: someone loaded a new media
+  // Remote URLs come from other clients: validate them like local input
   ServerConnector.addListener('mediaLoad', (data) => {
     if (data.user.name === MR.user.name) return;
+    if (!MediaPlayer.isValidUrl(data.url)) return;
     _ownMediaUrl = null;
     MediaPlayer.load(data.url);
     View.showWatching(data.url);
@@ -542,7 +544,7 @@ function initMedia() {
   clearTimeout(_syncTimeout);
   _syncTimeout = setTimeout(() => { _syncDone = true; }, 2000);
   ServerConnector.addListener('mediaSyncResponse', (data) => {
-    if (_syncDone) return;
+    if (_syncDone || !MediaPlayer.isValidUrl(data.url)) return;
     _syncDone = true;
     clearTimeout(_syncTimeout);
     MediaPlayer.loadAndSync(data.url, data.timestamp, data.isPlaying);

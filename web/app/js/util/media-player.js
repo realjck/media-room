@@ -179,6 +179,7 @@ const MediaPlayer = {};
  * @returns {boolean}
  */
 MediaPlayer.isValidUrl = (url) => {
+  if (typeof url !== 'string') return false;
   // Not using `new URL()`: load-settings.js overwrites window.URL with the server address
   if (!/^https?:\/\/[^\s/?#.]+(\.[^\s/?#.]+)*(:\d+)?([/?#]\S*)?$/i.test(url)) return false;
   if (_detectType(url) === 'youtube') {
