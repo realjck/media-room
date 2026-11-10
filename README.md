@@ -77,7 +77,11 @@ server {
 
 ### Web client
 
-Static files — no build step. Set the WebSocket server URL in `web/config/settings`:
+Static files — no build step. Create `web/config/settings` from the example (it is git-ignored) and set the WebSocket server URL:
+
+```bash
+cp web/config/settings.example web/config/settings
+```
 
 ```
 URL=wss://your-server.com:8443

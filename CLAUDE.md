@@ -11,6 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Frontend (web/)
 The frontend is static HTML/JS — no build step required. jQuery is bundled directly at `web/app/js/libs/jquery/jquery.min.js`. Serve `index.html` directly or via any static file server.
 
+`web/config/settings` is git-ignored: create it with `cp web/config/settings.example web/config/settings`.
+
 **Dev mode:** Set `DEV=true` in `web/config/settings` to skip login modals and auto-connect as `johndoe` to channel `dev`.
 
 ### Backend (server/)
@@ -166,6 +168,6 @@ Plain text `KEY=VALUE` file loaded at runtime. Only whitelisted keys (`DEV`, `UR
 - `DEV` — `true` enables auto-login bypass
 - `URL` — WebSocket server URL (e.g. `wss://host:port`). Note: this overwrites the native `window.URL` constructor, so `new URL()` cannot be used in the frontend
 
-This file is served as a static asset and must be accessible at `./config/settings` relative to `index.html`.
+This file is served as a static asset and must be accessible at `./config/settings` relative to `index.html`. It is git-ignored (it holds the deployment URL); `web/config/settings.example` is the versioned template.
 
 **Version** is hardcoded in `web/app/js/app.js` as `const VERSION = '...'` at the top of the file — not in `settings`.

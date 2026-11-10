@@ -6,3 +6,6 @@ node_modules
 .venv
 
 .worktrees
+
+# Local config (copy from web/config/settings.example)
+web/config/settings
