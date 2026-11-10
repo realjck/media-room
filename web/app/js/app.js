@@ -1,6 +1,6 @@
 // =============================================================================
 // MEDIA ROOM
-// Version: 0.8.2
+// Version: 0.9.0
 // =============================================================================
 
 import { loadSettings } from "./util/load-settings.js";
@@ -9,7 +9,7 @@ import { JQueryForm } from "./util/jquery-form.js";
 import { View } from "./view/view.js";
 import { MediaPlayer } from './util/media-player.js';
 
-const VERSION = '0.8.3';
+const VERSION = '0.9.0';
 
 /**
  * MAIN APP
@@ -388,6 +388,9 @@ function _formatTimestamp(seconds) {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
+// URL last submitted by this user: a load error on it is shown under the field
+let _ownMediaUrl = null;
+
 function initMedia() {
   // Wire MediaPlayer local events → broadcast to room
   MediaPlayer.setCallbacks({
@@ -401,7 +404,14 @@ function initMedia() {
       ServerConnector.say('mediaSeek', { timestamp, user: MR.user });
     },
     onError: () => {
-      View.toast('Could not load media');
+      const url = MediaPlayer.getState().url;
+      if (url && url === _ownMediaUrl) {
+        $('#media-url').val(url);
+        View.showMediaError('Could not load this link');
+      } else {
+        View.clearMediaStatus();
+        View.toast('Could not load media');
+      }
     },
     onEnded: () => {
       const fun_msg = [
@@ -422,19 +432,58 @@ function initMedia() {
   function _submitMediaUrl() {
     const url = $('#media-url').val().trim();
     if (!url) return;
+    if (!MediaPlayer.isValidUrl(url)) {
+      View.showMediaError('This link is not valid');
+      return;
+    }
+    _ownMediaUrl = url;
     MediaPlayer.load(url);
     ServerConnector.say('mediaLoad', { url, timestamp: 0, user: MR.user });
     $('#media-url').val('');
+    View.showWatching(url);
   }
   $('#media-form button').on('click', _submitMediaUrl);
   $('#media-url').on('keypress', (e) => {
     if (e.which === 13) { e.preventDefault(); _submitMediaUrl(); }
   });
+  // Editing the field dismisses a previous error
+  $('#media-url').on('input', () => {
+    if ($('#media-status').hasClass('error')) {
+      const url = MediaPlayer.getState().url;
+      if (url) View.showWatching(url); else View.clearMediaStatus();
+    }
+  });
+
+  $('#media-copy-url').on('click', () => {
+    navigator.clipboard.writeText(MediaPlayer.getState().url || '').then(() => {
+      View.toast('Video link copied!');
+    }).catch(() => {
+      View.toast('Could not copy link');
+    });
+  });
+
+  // Remove the media for the whole room
+  $('#media-clear').on('click', () => {
+    _ownMediaUrl = null;
+    MediaPlayer.unload();
+    View.clearMediaStatus();
+    ServerConnector.say('mediaClear', { user: MR.user });
+  });
+
+  ServerConnector.addListener('mediaClear', (data) => {
+    if (data.user.name === MR.user.name) return;
+    _ownMediaUrl = null;
+    MediaPlayer.unload();
+    View.clearMediaStatus();
+    View.toast(`${data.user.name} removed the video`, MR.userColors[data.user.color]);
+  });
 
   // Remote: someone loaded a new media
   ServerConnector.addListener('mediaLoad', (data) => {
     if (data.user.name === MR.user.name) return;
+    _ownMediaUrl = null;
     MediaPlayer.load(data.url);
+    View.showWatching(data.url);
     const load_msg = [
       'loaded a new video',
       'queued up something new',
@@ -498,5 +547,6 @@ function initMedia() {
     _syncDone = true;
     clearTimeout(_syncTimeout);
     MediaPlayer.loadAndSync(data.url, data.timestamp, data.isPlaying);
+    View.showWatching(data.url);
   });
 }

@@ -80,4 +80,29 @@ View.removeUser = (username) => {
     });
 }
 
+/**
+ * Media status line under the URL field: error message
+ * @param {string} message
+ */
+View.showMediaError = (message) => {
+    $("#media-status .media-status-error").text(message);
+    $("#media-status").removeClass("watching").addClass("error");
+}
+
+/**
+ * Media status line under the URL field: currently watched URL
+ * @param {string} url
+ */
+View.showWatching = (url) => {
+    $("#media-copy-url").text(url).attr("title", "Copy video link: " + url);
+    $("#media-status").removeClass("error").addClass("watching");
+}
+
+/**
+ * Empty the media status line (keeps its reserved height)
+ */
+View.clearMediaStatus = () => {
+    $("#media-status").removeClass("error watching");
+}
+
 export {View};

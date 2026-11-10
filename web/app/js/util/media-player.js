@@ -1,7 +1,7 @@
 /**
  * MediaPlayer
  * Unified interface for direct video URLs and YouTube IFrame API.
- * API: load, loadAndSync, play, pause, seek, getTime, getState, setCallbacks
+ * API: isValidUrl, load, loadAndSync, unload, play, pause, seek, getTime, getState, setCallbacks
  */
 
 let _url = null;
@@ -70,7 +70,7 @@ function _loadDirect(url, onReady) {
   $('video source').attr('src', url);
   const v = $('video')[0];
   if (v) v.load();
-  $('video').off('play.mr pause.mr seeked.mr error.mr ended.mr canplay.sync');
+  _unbindDirect();
   if (onReady) {
     if (v && v.readyState >= 3) {
       onReady();
@@ -92,13 +92,19 @@ function _loadDirect(url, onReady) {
     if (_remoteAction) return;
     if (_callbacks.onSeek) _callbacks.onSeek($('video')[0].currentTime);
   });
-  $('video').on('error.mr', () => {
+  // With <source> children, a failed fetch fires 'error' on the source, not the video
+  $('video, video source').on('error.mr', () => {
     if (_callbacks.onError) _callbacks.onError();
   });
   $('video').on('ended.mr', () => {
     $('video')[0].load(); // restore poster
     if (_callbacks.onEnded) _callbacks.onEnded();
   });
+}
+
+function _unbindDirect() {
+  $('video').off('play.mr pause.mr seeked.mr error.mr ended.mr canplay.sync');
+  $('video source').off('error.mr');
 }
 
 function _onYTStateChange(event) {
@@ -160,6 +166,20 @@ function _loadYouTube(url, onReady) {
 const MediaPlayer = {};
 
 /**
+ * Check that a URL is loadable: http(s) and, for YouTube, a well-formed video id.
+ * @param {string} url
+ * @returns {boolean}
+ */
+MediaPlayer.isValidUrl = (url) => {
+  // Not using `new URL()`: load-settings.js overwrites window.URL with the server address
+  if (!/^https?:\/\/[^\s/?#.]+(\.[^\s/?#.]+)*(:\d+)?([/?#]\S*)?$/i.test(url)) return false;
+  if (_detectType(url) === 'youtube') {
+    return /^[\w-]{11}$/.test(_extractYouTubeId(url) || '');
+  }
+  return true;
+};
+
+/**
  * Register callbacks fired by local player events (used to broadcast to room).
  * @param {{ onPlay, onPause, onSeek, onError }} callbacks
  */
@@ -193,6 +213,23 @@ MediaPlayer.loadAndSync = (url, timestamp, isPlaying) => {
   } else {
     _loadDirect(url, _applySyncPending);
   }
+};
+
+/**
+ * Stop and remove the current media, restoring the empty player with its poster.
+ */
+MediaPlayer.unload = () => {
+  _url = null;
+  _isPlaying = false;
+  _syncPending = null;
+  _ytReady = false;
+  if (_ytPlayer) { _ytPlayer.destroy(); _ytPlayer = null; }
+  $('#yt-player-wrap').hide().html('<div id="yt-player"></div>');
+  _unbindDirect();
+  $('video source').removeAttr('src');
+  const v = $('video')[0];
+  if (v) v.load();
+  $('video').show();
 };
 
 /**

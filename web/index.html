@@ -36,6 +36,14 @@
 					<input type="text" id="media-url" aria-label="Video URL or YouTube link" placeholder="Video URL or YouTube link" autocomplete="off"/>
 					<button>&#9654;</button>
 				</div>
+				<div id="media-status" class="media-status">
+					<span class="media-status-error"></span>
+					<span class="media-status-watching">
+						<span class="media-status-label">Loaded</span>
+						<button id="media-copy-url" class="media-status-url" title="Copy video link"></button>
+						<button id="media-clear" class="media-status-clear" title="Remove video" aria-label="Remove video">&times;</button>
+					</span>
+				</div>
 				<div class="users-panel">
 					<h2 class="small">In this room:</h2>
 					<div id="users-container"></div>
