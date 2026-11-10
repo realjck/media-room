@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**MediaRoom** is a minimal real-time chat room with synchronized media playback. It uses a Python WebSocket server and a static vanilla JS frontend, deployed via Docker with Nginx + SSL.
+**MediaRoom** is a minimal real-time chat room with synchronized media playback. It uses a Python WebSocket server and a static vanilla JS frontend, The server is deployed via Docker behind Nginx + SSL; the frontend is a static folder uploaded to the web host.
 
 ## Development Setup
 
@@ -28,15 +28,10 @@ python main.py
 
 The server listens on port 8080 with SSL (WSS). For local dev, you need self-signed certs or must modify `main.py` to remove SSL.
 
-### Docker
+### Docker (server only)
 ```bash
-# Server
 docker build -t media-room-server ./server
 docker run -p 8080:8080 -v /path/to/certs:/app media-room-server
-
-# Web
-docker build -t media-room-web ./web
-docker run -p 80:80 media-room-web
 ```
 
 ## Architecture
@@ -161,6 +156,11 @@ The app is intentionally **open**: the only access control is the channel name (
 What is protected: chat/usernames render via jQuery `.text()` (no XSS even bypassing the client-side `/^[^<>]+$/` regex); colors are fixed-palette index lookups; media URLs received from peers (`mediaLoad`, `mediaSyncResponse`) go through the same `MediaPlayer.isValidUrl()` check as local input and are ignored otherwise; login is regex-restricted (`^\w{1,32}$`) and only string-split (no injection sink); the server is pure in-memory (no eval/shell/fs/DB from user input); `max_size` caps message size.
 
 **Planned (future session): rate-limiting + connection cap.** The realistic abuse vector is a bot opening many connections or flooding a room (the sequential broadcast means a flood affects everyone in the channel). There is currently no per-IP/per-connection rate limit, no total-connection cap, and no login timeout (a client can hold a coroutine at `await recv()` without ever identifying — slowloris-style). Add these when hardening. Per-room secrets are explicitly out of scope.
+
+### Backlog (later)
+
+- **Rename the `URL` settings key to `WS_URL`**: loading it overwrites the native `window.URL` constructor (see Configuration). Requires updating `load-settings.js` whitelist, its readers, `settings.example`, README, and the production `settings` file in the same deploy.
+- **Minimal JS tests** with `node --test` (no dependency) for pure functions such as `MediaPlayer.isValidUrl()`; tests must clobber `globalThis.URL` like the browser does.
 
 ### Configuration (`web/config/settings`)
 

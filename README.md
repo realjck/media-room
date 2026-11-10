@@ -87,4 +87,4 @@ cp web/config/settings.example web/config/settings
 URL=wss://your-server.com:8443
 ```
 
-Deploy the `web/` folder (or build its Docker image) to any static file host.
+Deploy the `web/` folder to any static file host.
