@@ -1,6 +1,6 @@
 // =============================================================================
 // MEDIA ROOM
-// Version: 0.9.0
+// Version: 0.9.1
 // =============================================================================
 
 import { loadSettings } from "./util/load-settings.js";
@@ -9,7 +9,7 @@ import { JQueryForm } from "./util/jquery-form.js";
 import { View } from "./view/view.js";
 import { MediaPlayer } from './util/media-player.js';
 
-const VERSION = '0.9.0';
+const VERSION = '0.9.1';
 
 /**
  * MAIN APP
@@ -403,8 +403,7 @@ function initMedia() {
     onSeek: (timestamp) => {
       ServerConnector.say('mediaSeek', { timestamp, user: MR.user });
     },
-    onError: () => {
-      const url = MediaPlayer.getState().url;
+    onError: (url) => {
       if (url && url === _ownMediaUrl) {
         $('#media-url').val(url);
         View.showMediaError('Could not load this link');
