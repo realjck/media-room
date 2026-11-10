@@ -5,6 +5,7 @@
 
 :root {
     --universal-border-radius: 8px;
+    --media-button-width: 30px;
 }
 
 /* Better modal: */
@@ -642,7 +643,9 @@ li.btColor.active {
     margin: 0;
 }
 .media-form button {
-    padding: 4px 8px;
+    width: var(--media-button-width);
+    padding: 4px 0;
+    text-align: center;
     font-size: 0.8em;
     white-space: nowrap;
     flex-shrink: 0;
@@ -653,7 +656,7 @@ li.btColor.active {
 .media-status {
     height: 20px;
     margin: 2px 5px 0.6em;
-    padding: 0 3px;
+    padding: 0 0 0 3px;
     display: flex;
     align-items: center;
     font-size: x-small;
@@ -679,7 +682,7 @@ li.btColor.active {
     flex-shrink: 0;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #666;
+    color: #4caf50;
 }
 .media-status-url,
 .media-status-clear {
@@ -705,6 +708,9 @@ li.btColor.active {
 }
 .media-status-clear {
     flex-shrink: 0;
+    /* Same width as the play button above so both are centered on one axis */
+    width: var(--media-button-width);
+    text-align: center;
     font-size: 1.4em;
     line-height: 1;
     color: #777;
