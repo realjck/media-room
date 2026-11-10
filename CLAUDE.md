@@ -128,7 +128,7 @@ The high panel (`#high-panel`) at the top of the left sidebar contains:
 - `.panel-header`: mascot icon + "MEDIA ROOM" (Bebas Neue) on the left, hamburger toggle on the right — flex row, collapses cleanly
 - `#copy-room-link`: button displaying "Link to room_name" — copies `location.href` to clipboard via `navigator.clipboard`
 - `#media-form`: video URL input. Submitted URLs are checked by `MediaPlayer.isValidUrl()` (http(s), well-formed YouTube id); an invalid one stays in the field
-- `#media-status`: fixed-height line under the form (never shifts the panel). Class `error` shows a red message (invalid syntax, or a load failure of the user's own URL); class `watching` shows "Loaded <url>" (click copies the URL) and a × that unloads the media for the whole room via `mediaClear`
+- `#media-status`: fixed-height line under the form (never shifts the panel). Class `error` shows a red message (invalid syntax, or a load failure of the user's own URL — a failed media is cleared from the player state, so it is never shown as loaded nor sent to joiners); class `watching` shows "Loaded <url>" (click copies the URL) and a × that unloads the media for the whole room via `mediaClear`
 - `.users-panel` / `#users-container`: user badges. The current user's badge (`#self-badge`) is prepended with a color picker dropdown (`#self-color-picker`) that opens on click — other users' badges are non-interactive
 
 ### Icons (`web/app/images/`)

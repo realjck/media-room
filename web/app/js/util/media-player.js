@@ -93,13 +93,21 @@ function _loadDirect(url, onReady) {
     if (_callbacks.onSeek) _callbacks.onSeek($('video')[0].currentTime);
   });
   // With <source> children, a failed fetch fires 'error' on the source, not the video
-  $('video, video source').on('error.mr', () => {
-    if (_callbacks.onError) _callbacks.onError();
-  });
+  $('video, video source').on('error.mr', _fail);
   $('video').on('ended.mr', () => {
     $('video')[0].load(); // restore poster
     if (_callbacks.onEnded) _callbacks.onEnded();
   });
+}
+
+// A failed media is not the current media: forget it so it is neither shown
+// as loaded nor sent to joiners, then report the failed URL.
+function _fail() {
+  const failedUrl = _url;
+  _url = null;
+  _isPlaying = false;
+  _syncPending = null;
+  if (_callbacks.onError) _callbacks.onError(failedUrl);
 }
 
 function _unbindDirect() {
@@ -130,7 +138,7 @@ function _loadYouTube(url, onReady) {
   $('#yt-player-wrap').show();
   const videoId = _extractYouTubeId(url);
   if (!videoId) {
-    if (_callbacks.onError) _callbacks.onError();
+    _fail();
     return;
   }
   function _createPlayer() {
@@ -144,7 +152,7 @@ function _loadYouTube(url, onReady) {
       events: {
         onReady: () => { _ytReady = true; if (onReady) onReady(); },
         onStateChange: _onYTStateChange,
-        onError: () => { if (_callbacks.onError) _callbacks.onError(); }
+        onError: _fail
       }
     });
   }

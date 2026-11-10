@@ -403,8 +403,7 @@ function initMedia() {
     onSeek: (timestamp) => {
       ServerConnector.say('mediaSeek', { timestamp, user: MR.user });
     },
-    onError: () => {
-      const url = MediaPlayer.getState().url;
+    onError: (url) => {
       if (url && url === _ownMediaUrl) {
         $('#media-url').val(url);
         View.showMediaError('Could not load this link');
