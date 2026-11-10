@@ -9,3 +9,9 @@ node_modules
 
 # Local config (copy from web/config/settings.example)
 web/config/settings
+
+__pycache__/
+
+# Personal, not part of the project
+.claude/
+docs/code-review.md
